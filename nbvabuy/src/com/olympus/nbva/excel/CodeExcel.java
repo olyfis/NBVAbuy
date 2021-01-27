@@ -431,7 +431,8 @@ public class CodeExcel extends HttpServlet {
 		String effDate = "";
 		double buy = 0.00;
 		String dFmt = Olyutil.formatDate(dateStamp, "yyyy-MM-dd", "MMMM dd, yyyy");
-		
+		String dateToday = Olyutil.formatDate(dateStamp, "yyyy-MM-dd", "yyyyMMdd");
+		String invoiceNum = "";
 		
 		if (listArrSZ > 0) {	
 			//System.out.println("*** listArrSZ=" + listArrSZ);
@@ -450,17 +451,30 @@ public class CodeExcel extends HttpServlet {
 				custZip = contractData.getCustomerZip();
 				buy = contractData.getBuyTotal();			
 			}
-			
+			invoiceNum = agreementNum + "-" + dateToday;
+			System.out.println("** invNum=" + invoiceNum + "--");
 			String dFmt2 = Olyutil.formatDate(effDate, "yyyy-MM-dd", "MMMM dd, yyyy");
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+			 LocalDate effectiveDate = LocalDate.parse(effDate, formatter);
+			LocalDate effDateMinus1 = effectiveDate.plusDays(-1);
+			String dFmtPlus = Olyutil.formatDate(effDateMinus1.toString(), "yyyy-MM-dd", "MMMM dd, yyyy");
+			
+			
 			 
 			XSSFRow row = sheet1.getRow(5);
 			XSSFCell cell = row.getCell(4);
 			cell.setCellValue(dFmt); 
 			
+			// add invoice number -- JB 2021-01-26
+		 
+			row = sheet1.getRow(4);
+			cell = row.getCell(4);
+			cell.setCellValue(invoiceNum);
+			/* 
 			row = sheet1.getRow(4);
 			cell = row.getCell(4);
 			cell.setCellValue(contractData.getInvoice());
-			
+			*/
 			
 			row = sheet1.getRow(10);
 			cell = row.getCell(1);
@@ -485,13 +499,20 @@ public class CodeExcel extends HttpServlet {
 				cell.setCellValue(custCity + ", " + custState+ " " + custZip);	
 			}
 			
+			// Fix date 2021=01-26
 			row = sheet1.getRow(15);
 			cell = row.getCell(1);
-			cell.setCellValue(dFmt2);
+			//cell.setCellValue(effDateMinus1.toString());
+			cell.setCellValue(dFmtPlus);
+			
+			
+			
 			
 			row = sheet1.getRow(15);
 			cell = row.getCell(4);
 			cell.setCellValue(agreementNum);
+			
+			
 			
 			row = sheet1.getRow(21);
 			cell = row.getCell(4);
