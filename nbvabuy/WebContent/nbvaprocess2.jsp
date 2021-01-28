@@ -206,7 +206,7 @@ function ajaxFunction(){
   <td width="60" valign="bottom"> <b>Effective Date: ( <font color="red">Later than: <%=currDate%> </font>)</b> </td> 
   <td width="20" valign="bottom"> 
    <center>
-   <% out.println("<input name=\"eDate\" id=\"date2\" type=\"text\" value=\" " +     newEffDate  + "  \"   onclick=\"pureJSCalendar.open('yyyy-MM-dd', 20, 30, 7, '2017-1-1', '2025-12-31', 'date2', 20)\"   />" );
+   <% out.println("<input name=\"eDate\" id=\"date2\" type=\"text\" value=\" " +     commDate  + "  \"   onclick=\"pureJSCalendar.open('yyyy-MM-dd', 20, 30, 7, '2017-1-1', '2025-12-31', 'date2', 20)\"   />" );
      %>
    </center>
   

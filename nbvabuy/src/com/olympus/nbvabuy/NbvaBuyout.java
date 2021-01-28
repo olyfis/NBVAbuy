@@ -1199,6 +1199,7 @@ public class NbvaBuyout extends HttpServlet {
 				String naDate = rtnPair.get(0).getLeft().getNextAgingDate();
 				rtnPair.get(0).getLeft().setTermPlusSpan(termPlusSpan);
 				request.getSession().setAttribute("commDate", commDate);
+				 
 				request.getSession().setAttribute("termDate", termDate);
 				request.getSession().setAttribute("boDate", boDate);
 				request.getSession().setAttribute("effDate", effDate);

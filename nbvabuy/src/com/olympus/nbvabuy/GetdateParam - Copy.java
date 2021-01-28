@@ -105,7 +105,7 @@ public class GetdateParam extends HttpServlet {
 		String dispatchJSP = "/nbvaprocess.jsp";
 		HttpSession session = request.getSession(true);
 		ArrayList<String> dateArr = new ArrayList<String>();
-		String sqlFile = "C:\\Java_Dev\\props\\sql\\NBVAbuy\\NBVA_assetBuy_getCommDate_V2.sql";
+		String sqlFile = "C:\\Java_Dev\\props\\sql\\NBVAbuy\\NBVA_assetBuy_getCommDate.sql";
 	 
 		
 		// String s1 = (String) session.getAttribute("JB");
@@ -117,12 +117,12 @@ public class GetdateParam extends HttpServlet {
 		if(dateArr.size() > 0) {
 			//Olyutil.printStrArray(dateArr);
 			String[] strSplitArr = Olyutil.splitStr(dateArr.get(0), ";");
-			//System.out.println("*** ARR=" + strSplitArr[0] + "--");
+			//System.out.println("*** DATE=" + strSplitArr[0] + "--");
 			
 			String commDate_t = strSplitArr[0];
-			String newEffDate = strSplitArr[1];
-			
+			String newEffDate = strSplitArr[0];
 			String commDate = "";
+			 
 			try {
 				commDate = DateUtil.getNewEffectiveDate(commDate_t);
 			} catch (ParseException e) {
@@ -130,11 +130,12 @@ public class GetdateParam extends HttpServlet {
 				e.printStackTrace();
 			}
 			 
-			System.out.println("*** NewEffectiveDate=" + commDate + "-- NewEffDate="   + newEffDate  +  "--");
+			//commDate = newEffDate;
+			//System.out.println("*** EffDATE=" + newEffDate + "--");
+			//System.out.println("*** NewEffectiveDate=" + commDate );
 		
 		
 		request.getSession().setAttribute("commDate", commDate);
-		request.getSession().setAttribute("newEffDate", newEffDate);
 			
 		} else { // date not found for ID
 			dispatchJSP = "/nbvaerror.jsp";
@@ -143,7 +144,6 @@ public class GetdateParam extends HttpServlet {
 		}
 		
 		request.getSession().setAttribute("id", id);
-		
 		request.getRequestDispatcher(dispatchJSP).forward(request, response);
  
 	}  
