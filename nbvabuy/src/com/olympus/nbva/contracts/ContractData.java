@@ -51,10 +51,121 @@ package com.olympus.nbva.contracts;
 
 	private double remainRentRec; //i=47
 	
+	
+	// added 2021-01-29
+	private double cityTaxRate; //i=48
+	private double cntyTaxRate;  //i=49
+	private double stateTaxRate;  //i=50
+	private double transCntyTaxRate; //i=51
+	private double totalTaxRate; //i=52
+	
+	private double buyOutWithTax; //i=53
+	 
+	
 	/****************************************************************************************************************************************************/
 
+	
+	
+	
+	
 	public double getRemainRentRec() {
 		return remainRentRec;
+	}
+
+
+
+
+
+	public double getBuyOutWithTax() {
+		return buyOutWithTax;
+	}
+
+
+
+
+
+	public void setBuyOutWithTax(double buyOutWithTax) {
+		this.buyOutWithTax = buyOutWithTax;
+	}
+
+
+
+
+
+	public double getTotalTaxRate() {
+		return totalTaxRate;
+	}
+
+
+
+
+
+	public void setTotalTaxRate(double totalTaxRate) {
+		this.totalTaxRate = totalTaxRate;
+	}
+
+
+
+
+
+	public double getCityTaxRate() {
+		return cityTaxRate;
+	}
+
+
+
+
+
+	public void setCityTaxRate(double cityTaxRate) {
+		this.cityTaxRate = cityTaxRate;
+	}
+
+
+
+
+
+	public double getCntyTaxRate() {
+		return cntyTaxRate;
+	}
+
+
+
+
+
+	public void setCntyTaxRate(double cntyaxRate) {
+		this.cntyTaxRate = cntyaxRate;
+	}
+
+
+
+
+
+	public double getStateTaxRate() {
+		return stateTaxRate;
+	}
+
+
+
+
+
+	public void setStateTaxRate(double stateTaxRate) {
+		this.stateTaxRate = stateTaxRate;
+	}
+
+
+
+
+
+	public double getTransCntyTaxRate() {
+		return transCntyTaxRate;
+	}
+
+
+
+
+
+	public void setTransCntyTaxRate(double transCntyTaxRate) {
+		transCntyTaxRate = transCntyTaxRate;
 	}
 
 

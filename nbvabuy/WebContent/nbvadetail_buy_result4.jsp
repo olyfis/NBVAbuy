@@ -249,42 +249,20 @@ public void  buildCellsTotals( JspWriter out, ContractData contract, String form
 	out.println("<tr>"); 
 	
 	
-	
-	double taxedBuyout_t = contract.getBuyOutWithTax();
-	double buyOut = contract.getBuyOut();
-	//System.out.println("***%%%*** TaxedBuyout=" + taxedBuyout_t + "--");
-	
 	//String sumTotal_df = df.format(sumTotal);
 	String sumTotal_df = Olyutil.decimalfmt(sumTotal, "$###,##0.00");
-	String taxedTotal = Olyutil.decimalfmt(taxedBuyout_t, "$###,##0.00");  // added 2021-002-01
-	 // added 2021-002-01
-	NumberFormat defaultFormat = NumberFormat.getPercentInstance();
-	defaultFormat.setMinimumFractionDigits(3);
-	String taxRate = defaultFormat.format(contract.getTotalTaxRate()/ 100);
-	
-	
-	double taxesPaid_t =  taxedBuyout_t - buyOut;
-	String taxesPaid = Olyutil.decimalfmt(taxesPaid_t, "$###,##0.00");  
-	//System.out.println("***%%%*** TaxRate=" +  contract.getTotalTaxRate() + "--");
-	
-	out.println("<th class=\" " + style + "  \" >Taxed Contract Buyout</th>");
+
+	out.println("<th class=\" " + style + "  \" >Contract Total</th>");
 	//out.println( "<td class=\"a\">" + contract.getContractID() + "</td></tr>");
-	//out.println( "<td class=\"a\">" + sumTotal_df + "</td></tr>");
-	out.println( "<td class=\"a\">" + taxedTotal + "</td></tr>"); // added 2021-002-01
-	
-	
+	out.println( "<td class=\"a\">" + sumTotal_df + "</td></tr>");
 	out.println("<tr>"); 
 	out.println("<th class=\" " + style + "  \" >Contract Residual</th>");
-	out.println( "<td class=\"a\">" + hold + "</td></tr>");
+	 out.println( "<td class=\"a\">" + hold + "</td></tr>");
 	
-	out.println("<tr>"); 
-	out.println("<th class=\" " + style + "  \" >Taxes Paid</th>");
-	out.println( "<td class=\"a\">" + taxesPaid + "</td></tr>");
 	
 	out.println("<tr>");
-	out.println("<th class=\" " + style + "  \" >Contract Tax Rate</th>");
-	 //out.println( "<td  width=\"70%\"  >" + contract.getTotalTaxRate() + "</td></tr>");
-	 out.println( "<td  width=\"70%\"  >" + taxRate + "</td></tr>");
+	out.println("<th class=\" " + style + "  \" >Contract Tax</th>");
+	 out.println( "<td  width=\"70%\"  >" + hold + "</td></tr>");
 	
 	out.println( "  </td></tr>");
 

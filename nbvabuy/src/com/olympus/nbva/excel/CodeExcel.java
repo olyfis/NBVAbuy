@@ -433,6 +433,7 @@ public class CodeExcel extends HttpServlet {
 		String dFmt = Olyutil.formatDate(dateStamp, "yyyy-MM-dd", "MMMM dd, yyyy");
 		String dateToday = Olyutil.formatDate(dateStamp, "yyyy-MM-dd", "yyyyMMdd");
 		String invoiceNum = "";
+		double buyOutWithTax = 0.00;
 		
 		if (listArrSZ > 0) {	
 			//System.out.println("*** listArrSZ=" + listArrSZ);
@@ -449,10 +450,11 @@ public class CodeExcel extends HttpServlet {
 				custCity = contractData.getCustomerCity();
 				custState = contractData.getCustomerState();
 				custZip = contractData.getCustomerZip();
-				buy = contractData.getBuyTotal();			
+				buy = contractData.getBuyTotal();	
+				buyOutWithTax = contractData.getBuyOutWithTax();
 			}
 			invoiceNum = agreementNum + "-" + dateToday;
-			System.out.println("** invNum=" + invoiceNum + "--");
+			//System.out.println("** invNum=" + invoiceNum + "--");
 			String dFmt2 = Olyutil.formatDate(effDate, "yyyy-MM-dd", "MMMM dd, yyyy");
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 			 LocalDate effectiveDate = LocalDate.parse(effDate, formatter);
@@ -516,14 +518,14 @@ public class CodeExcel extends HttpServlet {
 			
 			row = sheet1.getRow(21);
 			cell = row.getCell(4);
-			cell.setCellValue(Olyutil.decimalfmt(contractData.getBuyOut(), "$###,##0.00"));
-			
+			//cell.setCellValue(Olyutil.decimalfmt(contractData.getBuyOut(), "$###,##0.00"));
+			cell.setCellValue(Olyutil.decimalfmt(contractData.getBuyOutWithTax(), "$###,##0.00"));
 
 			row = sheet1.getRow(40);
 			cell = row.getCell(4);
+			cell.setCellValue(Olyutil.decimalfmt(contractData.getBuyOutWithTax(), "$###,##0.00"));
 			
-			
-			cell.setCellValue(Olyutil.decimalfmt(contractData.getBuyOut(), "$###,##0.00"));
+			//cell.setCellValue(Olyutil.decimalfmt(contractData.getBuyOut(), "$###,##0.00"));
 			//sheet1.addMergedRegion(new CellRangeAddress(40, 41, 4, 4));
 		}
 		
@@ -575,10 +577,12 @@ public class CodeExcel extends HttpServlet {
 				custZip = contractData.getCustomerZip();
 				 
 				boDate = contractData.getBuyOutDate();
-				buyOutAmt = Olyutil.decimalfmt(contractData.getBuyOut(), "$###,##0.00");
+				//buyOutAmt = Olyutil.decimalfmt(contractData.getBuyOut(), "$###,##0.00");
+				
+				buyOutAmt = Olyutil.decimalfmt(contractData.getBuyOutWithTax(), "$###,##0.00");
 				//System.out.println("*** contractID=" + contractID + "-- AgreementNum=" + agreementNum);
 				effectiveDate = contractData.getEffectiveDate();
-				System.out.println("*** effectiveDate = " + effectiveDate + "--");
+				//System.out.println("*** effectiveDate = " + effectiveDate + "--");
 			}  
 		}
 		 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -656,7 +660,7 @@ public class CodeExcel extends HttpServlet {
 		
 	}
 	/****************************************************************************************************************************************************/
-	public static void doInvoiceStatement(XSSFWorkbook workbook, String tab, List<Pair<ContractData, List<AssetData> >> rtnPair, String dateStamp, ArrayList<String> ageArr ) throws IOException {
+	public static void doInvoiceStatement_ORIG(XSSFWorkbook workbook, String tab, List<Pair<ContractData, List<AssetData> >> rtnPair, String dateStamp, ArrayList<String> ageArr ) throws IOException {
 
 		
 		int listArrSZ = rtnPair.size();
@@ -678,7 +682,7 @@ public class CodeExcel extends HttpServlet {
 		double buy = 0.00;
 		String dFmt = Olyutil.formatDate(dateStamp, "yyyy-MM-dd", "MMMM dd, yyyy");
 		String[] lineArr = null;
-		
+		//System.out.println("** DATE=" + dFmt + "--");
 		if (listArrSZ > 0) {	
 			//System.out.println("*** listArrSZ=" + listArrSZ);
 		 
@@ -801,8 +805,184 @@ public class CodeExcel extends HttpServlet {
 	
 	
 	/****************************************************************************************************************************************************/
+	public static void doInvoiceStatement(XSSFWorkbook workbook, String tab, List<Pair<ContractData, List<AssetData> >> rtnPair, String dateStamp, ArrayList<String> ageArr ) throws IOException {
 
+		
+		int listArrSZ = rtnPair.size();
+		ContractData contractData = new ContractData();
+		AssetData assets = new AssetData();
+		XSSFSheet sheet1 = workbook.getSheet(tab);
+		// Sheet mySheet = wb.getSheetAt(0);
+		String contractID = "";
+		String agreementNum = "";
+		String custName = "";
+		String custAddr1 = "";
+		String custAddr2 = "";
+		String custCity = "";
+		String custState = "";
+		String custZip = "";
+		String boDate = "";
+		String buyOutAmt = "";
+		String effDate = "";
+		double buy = 0.00;
+		String dFmt = Olyutil.formatDate(dateStamp, "yyyy-MM-dd", "MMMM dd, yyyy");
+		String[] lineArr = null;
+		//System.out.println("** DATE=" + dFmt + "--");
+		if (listArrSZ > 0) {	
+			//System.out.println("*** listArrSZ=" + listArrSZ);
+			
+			
+			for (int i = 0; i < listArrSZ; i++ ) {
+				contractData = rtnPair.get(i).getLeft();
+				contractID = contractData.getContractID();
+				agreementNum = contractData.getCustomerID();
+				effDate = contractData.getEffectiveDate();
+				custName = contractData.getCustomerName();
+				custAddr1 = contractData.getCustomerAddr1();
+				custAddr2 = contractData.getCustomerAddr2();
+				custCity = contractData.getCustomerCity();
+				custState = contractData.getCustomerState();
+				custZip = contractData.getCustomerZip();
+				buy = contractData.getBuyTotal();			
+			}
+			// Fix invoice date -- 2021-02-17
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+			LocalDate effectiveDate = LocalDate.parse(effDate, formatter);
+			LocalDate effDateMinus1 = effectiveDate.plusDays(-1);
+			
+			String dateToday = Olyutil.formatDate(dateStamp, "yyyy-MM-dd", "yyyyMMdd");
+			String invoiceNum = agreementNum + "-" + dateToday;
+			//System.out.println("** invNum=" + invoiceNum + "--");		 
+			buyOutAmt = Olyutil.decimalfmt(contractData.getBuyOutWithTax(), "$###,##0.00");
+			String buyOutAmt_noTax = Olyutil.decimalfmt(contractData.getBuyOut(), "$###,##0.00");
+			String dFmt2 = Olyutil.formatDate(effDate, "yyyy-MM-dd", "MMMM dd, yyyy");
+			 
+			double taxedAmt_t = contractData.getBuyOutWithTax() - contractData.getBuyOut();
+			String 	taxedAmt = Olyutil.decimalfmt(taxedAmt_t, "$###,##0.00");
+			
+			XSSFRow row = sheet1.getRow(3);
+			XSSFCell cell = row.getCell(4);
+			cell.setCellValue(dFmt); 
+		
+			 
+			row = sheet1.getRow(18);
+			cell = row.getCell(1);
+			// set new invoice number
+			cell.setCellValue(invoiceNum);
+			 
+			row = sheet1.getRow(18);
+			cell = row.getCell(2);
+			cell.setCellValue(effDateMinus1.toString());
+			if (taxedAmt_t > 0.00) {
+				row = sheet1.getRow(19);
+				cell = row.getCell(3);
+				cell.setCellValue("Tax Payment");
+				
+				row = sheet1.getRow(19);
+				cell = row.getCell(4);
+				
+				
+				cell.setCellValue(taxedAmt);
+				
+			}
+			
+			
+			row = sheet1.getRow(18);
+			cell = row.getCell(3);
+			cell.setCellValue("Buyout Payment");
+			
+			row = sheet1.getRow(18);
+			cell = row.getCell(4);
+			
+			
+			cell.setCellValue(buyOutAmt_noTax);
+			
+			
+			
+			
+			row = sheet1.getRow(8);
+			cell = row.getCell(1);
+			cell.setCellValue(custName);
+		
+			
+			row = sheet1.getRow(9);
+			cell = row.getCell(1);
+			cell.setCellValue(custAddr1);
+			
+			if (! Olyutil.isNullStr(custAddr2)) {
+				row = sheet1.getRow(10);
+				cell = row.getCell(1);
+				cell.setCellValue(custAddr2);
+				row = sheet1.getRow(11);
+				cell = row.getCell(1);
+				cell.setCellValue(custCity + ", " + custState+ " " + custZip);	
+				
+			} else {
+				row = sheet1.getRow(10);
+				cell = row.getCell(1);
+				cell.setCellValue(custCity + ", " + custState+ " " + custZip);	
+			}
+			
 	
+			
+			row = sheet1.getRow(11);
+			cell = row.getCell(4);
+			cell.setCellValue(agreementNum);
+			
+			/*row = sheet1.getRow(21);
+			cell = row.getCell(4);
+			cell.setCellValue(Olyutil.decimalfmt(contractData.getBuyOut(), "$###,##0.00"));
+			*/
+
+			row = sheet1.getRow(43);
+			cell = row.getCell(4);
+			cell.setCellValue(buyOutAmt);
+			
+			//cell.setCellValue(Olyutil.decimalfmt(contractData.getBuyOut(), "$###,##0.00"));
+			
+			
+			//sheet1.addMergedRegion(new CellRangeAddress(40, 41, 4, 4));
+			int k = 19;
+			int zz = 0;
+			double amt = 0.00;
+			int ageArrSZ = ageArr.size();
+			// ********************* Begin display assets
+		  /*
+			for (int m = 0; m < ageArrSZ; m++ ) {
+				zz = m;
+				
+ 
+					lineArr = Olyutil.splitStr(ageArr.get(m), ";");
+					if (contractID.equals(lineArr[0])) {
+					
+						amt = Olyutil.strToDouble(lineArr[4]);
+						row = sheet1.getRow(k);
+						cell = row.getCell(1);
+						cell.setCellValue(lineArr[6]);
+						
+						cell = row.getCell(2);
+						//cell.setCellValue( lineArr[5]);
+						cell.setCellValue( effDateMinus1.toString());
+						
+						cell = row.getCell(3);
+						cell.setCellValue( "");
+						
+						cell = row.getCell(4);
+						cell.setCellValue( Olyutil.decimalfmt(amt, "$###,##0.00"));				
+						k++;		
+					}
+					
+			}	
+	 */
+			//System.out.println("***^^^*** End Invoice code  M=" + zz + " -- SZ=" + ageArrSZ);			
+		} // end if SZ	
+
+
+	}
+	
+	
+	/****************************************************************************************************************************************************/
+
 	
 	// Service method
 		@Override

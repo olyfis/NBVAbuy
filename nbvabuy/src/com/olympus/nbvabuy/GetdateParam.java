@@ -130,7 +130,7 @@ public class GetdateParam extends HttpServlet {
 				e.printStackTrace();
 			}
 			 
-			System.out.println("*** NewEffectiveDate=" + commDate + "-- NewEffDate="   + newEffDate  +  "--");
+			//System.out.println("*** NewEffectiveDate=" + commDate + "-- NewEffDate="   + newEffDate  +  "--");
 		
 		
 		request.getSession().setAttribute("commDate", commDate);

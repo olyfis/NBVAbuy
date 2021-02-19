@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.logging.Handler;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
@@ -53,6 +54,7 @@ import org.apache.poi.ss.formula.functions.FinanceLib;
  
 import com.olympus.olyutil.*;
 import com.olympus.dateutil.DateUtil;
+import com.olympus.olyutil.log.OlyLog;
 //import com.olympus.nbva.DateUtil;
 
 // Run: http://localhost:8181/nbvabuy/nbvabuy?id=101-0010311-004&eDate=2020-04-16
@@ -71,7 +73,7 @@ public class NbvaBuyout extends HttpServlet {
 	//static String sqlFile = "C:\\Java_Dev\\props\\sql\\NBVAassetList_V4.sql";
 	//static String hdrFile = "C:\\Java_Dev\\props\\headers\\NBVA_Hdr_V4.txt";
 	
-	static String sqlFile = "C:\\Java_Dev\\props\\sql\\NBVAbuy\\NBVA_assetBuy_V4.sql";
+	static String sqlFile = "C:\\Java_Dev\\props\\sql\\NBVAbuy\\NBVA_assetBuy_V5.sql";
 	 static String hdrFile = "C:\\Java_Dev\\props\\headers\\NBVA\\NBVA_assetBuy_fullQueryHdr_v2.txt";
 	static String kitFileName = "C:\\Java_Dev\\props\\kitdata\\kitdata.csv";
 	//static boolean contractStat = false;
@@ -82,7 +84,7 @@ public class NbvaBuyout extends HttpServlet {
 	/*****************************************************************************************************************************************************/
 	
 	/****************************************************************************************************************************************************/
-	private final static Logger LOGGER = Logger.getLogger(NbvaBuyDisp.class.getCanonicalName());
+	private final static Logger LOGGER = Logger.getLogger(NbvaBuyout.class.getCanonicalName());
 	
 	// location to store file uploaded
     private static final String UPLOAD_DIRECTORY = "uploadDir";
@@ -288,7 +290,22 @@ public class NbvaBuyout extends HttpServlet {
 		
 		//System.out.println("***^^^Contract^^^*** Line 47=" + Olyutil.strToDouble(strSplitArr[47]) + "--");
 		contract.setRemainRentRec(Olyutil.strToDouble(strSplitArr[47]));
+		// added 2021-01-29
+		contract.setCityTaxRate(Olyutil.strToDouble(strSplitArr[48]));
+	
+		contract.setCntyTaxRate(Olyutil.strToDouble(strSplitArr[49]));
 		
+		contract.setStateTaxRate(Olyutil.strToDouble(strSplitArr[50]));
+		contract.setTransCntyTaxRate(Olyutil.strToDouble(strSplitArr[51]));
+		
+		double totalTaxRate = Olyutil.strToDouble(strSplitArr[48]) + Olyutil.strToDouble(strSplitArr[49]) + Olyutil.strToDouble(strSplitArr[50]) + Olyutil.strToDouble(strSplitArr[51]);
+		
+		contract.setTotalTaxRate(totalTaxRate);
+		
+		
+		
+		
+		// Done
 		
 		 //System.out.println("*** ContractData: 27" + strSplitArr[27] );
 		
@@ -894,14 +911,24 @@ public class NbvaBuyout extends HttpServlet {
 			int k = 0;
 			int rArrSZ = dataObj.get(0).getRight().size();
 			//System.out.println("*** rArrSZ=" + rArrSZ + "--");
-			
-			
-			
+			double cityTaxRate = 0.00;
+			double stateTaxRate = 0.00;
+			double cntyTaxRate = 0.00;
+			double transCntyTaxRate = 0.00;
+			double totalTaxRate = 0.00;
 			ContractData contract =  dataObj.get(0).getLeft();
 			purchOpt = contract.getPurOption();
 			assets = dataObj.get(0).getRight();
 			
 			long term = contract.getTerm();
+			
+			cityTaxRate = contract.getCityTaxRate();
+			stateTaxRate = contract.getStateTaxRate();
+			cntyTaxRate = contract.getCntyTaxRate();
+			transCntyTaxRate = contract.getTransCntyTaxRate();
+			totalTaxRate = contract.getTotalTaxRate();
+			
+			//System.out.println("*** Total TaxRate="  + totalTaxRate + "-- CityTax="  + cityTaxRate + "-- StateTax=" + stateTaxRate + "-- CntyTax=" + cntyTaxRate + "-- TCntyTax=" + transCntyTaxRate + "--");
 			
 			//System.out.println("*** MTHREM=" + mthRem + "--");
 			if (mthRem <= 0) { // in EverGreen
@@ -1003,6 +1030,24 @@ public class NbvaBuyout extends HttpServlet {
 				//System.out.println("***^^*** BP=" + dataObj.get(0).getRight().get(k).getBuyPrice() + "--");
 			} // End for
 			
+			double taxRate = dataObj.get(0).getLeft().getTotalTaxRate();
+			double buyOutData = dataObj.get(0).getLeft().getBuyOut();
+			double buyTotalTaxes_t = 0.00;
+			double buyTotalTaxes = 0.00;
+			
+			if( totalTaxRate <= 0) {
+				buyTotalTaxes = buyOutTotal;
+				
+			}  else {
+			 buyTotalTaxes_t = (totalTaxRate/100) * buyOutTotal;
+			
+			 buyTotalTaxes = buyTotalTaxes_t + buyOutTotal;
+			
+			}
+			
+			//System.out.println("***^^*** TR=" +totalTaxRate +  "-- BTT="  + buyTotalTaxes_t  + "--Buyout=" + buyOutTotal + "-- TaxedTotal=" + buyTotalTaxes + "--");
+			dataObj.get(0).getLeft().setBuyOutWithTax(buyTotalTaxes);
+			
 			 
 			dataObj.get(0).getLeft().setBuyOut(buyOutTotal);
 			dataObj.get(0).getLeft().setRollTotal(rollTotal);
@@ -1073,6 +1118,15 @@ public class NbvaBuyout extends HttpServlet {
 		String rtnFile = "C:\\Java_Dev\\props\\nbvaupdate\\returnStat.csv";
 		String calcFile = "C:\\Java_Dev\\props\\nbvaupdate\\calcTable.csv";
 		String tag = "csvData: ";
+		
+		String logFileName = "nbvabuy.log";
+		String directoryName = "D:/Kettle/logfiles/nbva";
+		Handler fileHandler =  OlyLog.setAppendLog(directoryName, logFileName, LOGGER );
+		Date logDate = Olyutil.getCurrentDate();
+		String dateFmt = Olyutil.formatDate("yyyy-MM-dd hh:mm:ss.SSS");
+		
+		
+		
 		DecimalFormat format = new DecimalFormat("0.00");
 		Date bd = Olyutil.getCurrentDate();
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd"); 
@@ -1215,7 +1269,10 @@ public class NbvaBuyout extends HttpServlet {
 				request.getSession().setAttribute("calcTableMap", calcTableMap);
 			
 				request.getSession().setAttribute("naDate", naDate);
+				LOGGER.info(dateFmt + ": " + "------------------Processing ID: " + idVal);
 				
+				fileHandler.flush();
+				fileHandler.close();
 				//System.out.println("***!!!*** java -- Buy - 24plus (5):" +  calcTableMap.get("5").getRoll24plus() + "--");
 				String opt = "";
 				//System.out.println("***!!!***errIDArrayRtnAZ=" + errIDArrayRtn.size()  + "-- sqlErrMap" + sqlErrMap.size() + "--");
