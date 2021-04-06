@@ -20,11 +20,14 @@ import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.logging.Handler;
 import java.util.logging.Logger;
 
@@ -369,30 +372,8 @@ public class NbvaBuyout extends HttpServlet {
 		return(listRtn); 
 	}
 	
-	
-	
-	
-	
 	/****************************************************************************************************************************************************/
-	public static double getContractTotals(String id, ArrayList<String> strArr, String sep) {
-		double sum = 0.0;
-		//Olyutil.printStrArray(strArr, "A: ");
-		for (String s : strArr) {	
-			String[] items = s.split(sep);	
-			//System.out.println("*** SZ=" + items.length + "-- " + s );
-			String contractID = items[0];
-			double val = 0.0;
-			val = Olyutil.strToDouble(items[4]);	
-			 //System.out.println("*** ID=" + id + "-- ContractID=" + contractID +"--");
-			if (id.equals(contractID)) {
-				// System.out.println("*** Match:" + id + " -- Value:" + val );
-				sum += val;
-			}	
-		}	
-		return(sum);
-	}
-	/**
-	 * @throws ParseException **************************************************************************************************************************************************/
+
 	
 	public static void doAssetCheck(String termDate, String effDate, String termSpanDate) throws ParseException {
 		int rtn = 0;
@@ -1078,6 +1059,104 @@ public class NbvaBuyout extends HttpServlet {
 		}
 		
 /****************************************************************************************************************************************************************/
+		public static void displayDataMap(Map<String, String> map) {
+		 
+
+				Map<String, String> treeMap = new TreeMap<>(map); // sort hash by key
+				for (Map.Entry<String, String> entry : treeMap.entrySet()) {
+					System.out.println("*** Key:" + entry.getKey() + " --> Value:" + entry.getValue() + "--");
+				}
+				System.out.println("*****************************************************************************************************");
+		
+		}	
+		/****************************************************************************************************************************************************************/
+		
+		private Map<String, String> getRequestHeadersInMap(HttpServletRequest request) {
+
+	        Map<String, String> result = new HashMap<>();
+
+	        Enumeration headerNames = request.getHeaderNames();
+	        while (headerNames.hasMoreElements()) {
+	            String key = (String) headerNames.nextElement();
+	            String value = request.getHeader(key);
+	            result.put(key, value);
+	        }
+
+	        return result;
+	    }
+	/****************************************************************************************************************************************************************/
+
+	public static void displayDataMapSD(Map<String, Double> map) {
+
+		for (Map.Entry<String, Double> entry : map.entrySet()) {
+			System.out.println("*** Key:" + entry.getKey() + " --> Value:" + entry.getValue() + "--");
+		}
+		System.out.println("*****************************************************************************************************");
+
+	}
+		
+		
+	/****************************************************************************************************************************************************/
+		public static HashMap<String, Double> getInvoiceTotals(String id, ArrayList<String> strArr, String sep) {
+			HashMap<String, Double> invoiceMap = new HashMap<String, Double>();
+			String invoiceNum= "";
+			double sum = 0.0;
+			double invTotal = 0.0;
+			
+			//Olyutil.printStrArray(strArr, "A: ");
+			 
+			for (String s : strArr) {	
+				String[] items = s.split(sep);	
+				//System.out.println("*** SZ=" + items.length + "-- " + s );
+				String contractID = items[0].trim();
+				double val = 0.0;
+				val = Olyutil.strToDouble(items[4]);	
+				invoiceNum = items[6];
+				//System.out.println("*** ID=" + id + "-- ContractID=" + contractID +"--");
+				if (id.equals(contractID)) {
+					if (invoiceMap.containsKey(invoiceNum)) {
+						sum += invoiceMap.get(invoiceNum) + val;
+						invoiceMap.put(invoiceNum, sum);
+						
+					} else {
+						invoiceMap.put(invoiceNum, val);
+						 
+					}
+					
+					invTotal += val;
+					//System.out.println("*** Match:" + id + " -- Value:" + val  + "-- IT=" + invTotal + "--");
+					 
+				}  
+				sum = 0.00;
+			}	
+			invoiceMap.put("contractTotal", invTotal);
+			
+			return(invoiceMap);
+		}
+		
+		
+		/****************************************************************************************************************************************************/
+
+		/****************************************************************************************************************************************************/
+		public static double getContractTotals(String id, ArrayList<String> strArr, String sep) {
+			double sum = 0.0;
+			//Olyutil.printStrArray(strArr, "A: ");
+			for (String s : strArr) {	
+				String[] items = s.split(sep);	
+				//System.out.println("*** SZ=" + items.length + "-- " + s );
+				String contractID = items[0];
+				double val = 0.0;
+				val = Olyutil.strToDouble(items[4]);	
+				 //System.out.println("*** ID=" + id + "-- ContractID=" + contractID +"--");
+				if (id.equals(contractID)) {
+					// System.out.println("*** Match:" + id + " -- Value:" + val );
+					sum += val;
+				}	
+			}	
+			return(sum);
+		}
+		/****************************************************************************************************************************************************/
+		
 		
 		
 		// Run: http://localhost:8181/nbvabuy/nbvabuy?id=101-0010311-004&eDate=2020-04-16
@@ -1090,6 +1169,11 @@ public class NbvaBuyout extends HttpServlet {
 		HashMap<String, String> codeMapRtn = new HashMap<String, String>();
 		HashMap<String, Integer> codeMapSQL = new HashMap<String, Integer>();
 		HashMap<String, ArrayList<Integer>> sqlErrMap = new HashMap<String, ArrayList<Integer>>();
+		
+		 
+		HashMap<String, Double> invoiceTotalsMap = new HashMap<String, Double>();
+		
+		
 		sqlErrMap.clear();
 		ArrayList<Integer> errIDArrayRtn = new ArrayList<>();
 		//System.out.println("***Before***errIDArrayRtnAZ=" + errIDArrayRtn.size()  + "-- sqlErrMap" + sqlErrMap.size() + "--");
@@ -1132,6 +1216,18 @@ public class NbvaBuyout extends HttpServlet {
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd"); 
 		String boDate = formatter.format(bd);
 		paramMap = doLoadFormParams(request, response );
+	
+		/*
+		Map<String, String> result = new HashMap<>();
+		result = getRequestHeadersInMap(request);	
+		displayDataMap(result);
+	*/	
+		String ipAddress = request.getHeader("X-FORWARDED-FOR");  
+		if (ipAddress == null) {  
+		    ipAddress = request.getRemoteAddr();  
+		}
+		
+		
 		if (paramMap != null) {
 			boolean stat = doValidateParams( paramMap);
 			if (stat) {
@@ -1243,7 +1339,14 @@ public class NbvaBuyout extends HttpServlet {
 				// request.getSession().setAttribute("contract", contractData);
 				request.getSession().setAttribute("rtnPair", rtnPair);
 				 //System.out.println("*** Get Contract Totals");
-				 sumTotal = getContractTotals(idVal, ageArr, ";");
+				// sumTotal = getContractTotals(idVal, ageArr, ";");
+				 
+				 invoiceTotalsMap = getInvoiceTotals(idVal, ageArr, ";");
+				 
+				 sumTotal = invoiceTotalsMap.get("contractTotal");
+				 request.getSession().setAttribute("invoiceTotalsMap", invoiceTotalsMap);
+				 //displayDataMapSD(invoiceTotalsMap);
+				 System.out.println("***^^^^***** Get Contract Totals:" + sumTotal + "--");
 				 errIDArrayRtn = doCheckDates(rtnPair, effDate, mthSpan);
 				//System.out.println("----- dateErrors=" + errIDArrayRtn.size());
 				String termDate = rtnPair.get(0).getLeft().getTermDate();
@@ -1269,7 +1372,7 @@ public class NbvaBuyout extends HttpServlet {
 				request.getSession().setAttribute("calcTableMap", calcTableMap);
 			
 				request.getSession().setAttribute("naDate", naDate);
-				LOGGER.info(dateFmt + ": " + "------------------Processing ID: " + idVal);
+				LOGGER.info(dateFmt + ": " + "------------------Processing ID: " + idVal + "-- From: " + ipAddress    +   "--");
 				
 				fileHandler.flush();
 				fileHandler.close();

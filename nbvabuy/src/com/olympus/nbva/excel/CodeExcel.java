@@ -660,7 +660,7 @@ public class CodeExcel extends HttpServlet {
 		
 	}
 	/****************************************************************************************************************************************************/
-	public static void doInvoiceStatement_ORIG(XSSFWorkbook workbook, String tab, List<Pair<ContractData, List<AssetData> >> rtnPair, String dateStamp, ArrayList<String> ageArr ) throws IOException {
+	public static void doInvoiceStatement_ORIG(XSSFWorkbook workbook, String tab, List<Pair<ContractData, List<AssetData> >> rtnPair, String dateStamp, ArrayList<String> ageArr, HashMap<String, Double> invoiceTotalsMap ) throws IOException {
 
 		
 		int listArrSZ = rtnPair.size();
@@ -805,7 +805,7 @@ public class CodeExcel extends HttpServlet {
 	
 	
 	/****************************************************************************************************************************************************/
-	public static void doInvoiceStatement(XSSFWorkbook workbook, String tab, List<Pair<ContractData, List<AssetData> >> rtnPair, String dateStamp, ArrayList<String> ageArr ) throws IOException {
+	public static void doInvoiceStatement(XSSFWorkbook workbook, String tab, List<Pair<ContractData, List<AssetData> >> rtnPair, String dateStamp, ArrayList<String> ageArr, HashMap<String, Double> invoiceTotalsMap ) throws IOException {
 
 		
 		int listArrSZ = rtnPair.size();
@@ -828,6 +828,9 @@ public class CodeExcel extends HttpServlet {
 		String dFmt = Olyutil.formatDate(dateStamp, "yyyy-MM-dd", "MMMM dd, yyyy");
 		String[] lineArr = null;
 		//System.out.println("** DATE=" + dFmt + "--");
+		
+		double contractTotal = 0.00;
+		
 		if (listArrSZ > 0) {	
 			//System.out.println("*** listArrSZ=" + listArrSZ);
 			
@@ -934,9 +937,7 @@ public class CodeExcel extends HttpServlet {
 			cell.setCellValue(Olyutil.decimalfmt(contractData.getBuyOut(), "$###,##0.00"));
 			*/
 
-			row = sheet1.getRow(43);
-			cell = row.getCell(4);
-			cell.setCellValue(buyOutAmt);
+			
 			
 			//cell.setCellValue(Olyutil.decimalfmt(contractData.getBuyOut(), "$###,##0.00"));
 			
@@ -945,7 +946,7 @@ public class CodeExcel extends HttpServlet {
 			int k = 19;
 			int zz = 0;
 			double amt = 0.00;
-			int ageArrSZ = ageArr.size();
+			//int ageArrSZ = ageArr.size();
 			// ********************* Begin display assets
 		  /*
 			for (int m = 0; m < ageArrSZ; m++ ) {
@@ -974,12 +975,70 @@ public class CodeExcel extends HttpServlet {
 					
 			}	
 	 */
-			//System.out.println("***^^^*** End Invoice code  M=" + zz + " -- SZ=" + ageArrSZ);			
+			//System.out.println("***^^^*** End Invoice code  M=" + zz + " -- SZ=" + ageArrSZ);		
+			
+			// Process invoice hash
+			
+			
+			
+			for (Map.Entry<String, Double> entry : invoiceTotalsMap.entrySet()) {
+				//System.out.println("*** Key:" + entry.getKey() + " --> Value:" + entry.getValue() + "--");
+				
+				if (entry.getKey().equals("contractTotal")) {
+					contractTotal = entry.getValue();	
+					continue;
+				}
+				row = sheet1.getRow(k);
+				cell = row.getCell(1);
+				cell.setCellValue(entry.getKey());
+				
+				cell = row.getCell(2);
+				cell.setCellValue( effDateMinus1.toString());
+				
+				cell = row.getCell(3);
+				cell.setCellValue( "");
+				
+				cell = row.getCell(4);
+				cell.setCellValue( Olyutil.decimalfmt(entry.getValue(), "$###,##0.00"));				
+				k++;		
+				
+				
+				
+				
+			} // End For process hash map
+			
+		  
+			cell = row.getCell(4);
+			cell.setCellValue( Olyutil.decimalfmt(contractTotal, "$###,##0.00"));			
+			row = sheet1.getRow(44);
+			
+			row = sheet1.getRow(43);
+			cell = row.getCell(4);
+			
+			System.out.println("*** BO=" + buyOutAmt + "--");
+			
+		  buyOutAmt = buyOutAmt.replace("$", "");
+			double tot = Olyutil.strToDouble(buyOutAmt) + contractTotal;
+			
+			cell.setCellValue(Olyutil.decimalfmt((tot), "$###,##0.00"));
+			
+			
+			
 		} // end if SZ	
 
 
 	}
-	
+	/****************************************************************************************************************************************************************/
+
+	public static void displayDataMapSD(Map<String, Double> map) {
+
+		for (Map.Entry<String, Double> entry : map.entrySet()) {
+			System.out.println("*** Key:" + entry.getKey() + " --> Value:" + entry.getValue() + "--");
+		}
+		System.out.println("*****************************************************************************************************");
+
+	}
+		
 	
 	/****************************************************************************************************************************************************/
 
@@ -1000,7 +1059,10 @@ public class CodeExcel extends HttpServlet {
 			XSSFWorkbook workbook = null;
 			XSSFSheet sheet = null;
 			
+			HashMap<String, Double> invoiceTotalsMap = (HashMap<String, Double>) session.getAttribute("invoiceTotalsMap");
 			
+			
+			//displayDataMapSD(invoiceTotalsMap);
 		assetHeaderArr = Olyutil.readInputFile(headerFile);
 
 		String tab1 = "Buyout_Letter";
@@ -1021,7 +1083,7 @@ public class CodeExcel extends HttpServlet {
 
 		// XSSFSheet sheet2 = getWorkSheet(workbook, "Buyout_Invoice");
 		doBuyoutInvoice(workbook, "Buyout_Invoice", list, dateStamp);
-		doInvoiceStatement(workbook, "Buyout_Statement", list, dateStamp, ageArr);
+		doInvoiceStatement(workbook, "Buyout_Statement", list, dateStamp, ageArr, invoiceTotalsMap);
 		//System.out.println("** Call contractHeader");
 		// workbook = newWorkbook();
 		sheet = newWorkSheet(workbook, "Asset List Report");
