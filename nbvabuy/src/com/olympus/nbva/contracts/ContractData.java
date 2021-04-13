@@ -60,7 +60,7 @@ package com.olympus.nbva.contracts;
 	private double totalTaxRate; //i=52
 	
 	private double buyOutWithTax; //i=53
-	 
+	private double buyOutInvoiceTotal; //i=53
 	
 	/****************************************************************************************************************************************************/
 
@@ -70,6 +70,22 @@ package com.olympus.nbva.contracts;
 	
 	public double getRemainRentRec() {
 		return remainRentRec;
+	}
+
+
+
+
+
+	public double getBuyOutInvoiceTotal() {
+		return buyOutInvoiceTotal;
+	}
+
+
+
+
+
+	public void setBuyOutInvoiceTotal(double buyOutInvoiceTotal) {
+		this.buyOutInvoiceTotal = buyOutInvoiceTotal;
 	}
 
 

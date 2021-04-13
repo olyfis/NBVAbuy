@@ -430,7 +430,7 @@ public class CodeExcel extends HttpServlet {
 		String buyOutAmt = "";
 		String effDate = "";
 		double buy = 0.00;
-		String dFmt = Olyutil.formatDate(dateStamp, "yyyy-MM-dd", "MMMM dd, yyyy");
+		String dFmt = Olyutil.formatDate(dateStamp, "yyyy-MM-dd", "MMMM d, yyyy");
 		String dateToday = Olyutil.formatDate(dateStamp, "yyyy-MM-dd", "yyyyMMdd");
 		String invoiceNum = "";
 		double buyOutWithTax = 0.00;
@@ -455,13 +455,15 @@ public class CodeExcel extends HttpServlet {
 			}
 			invoiceNum = agreementNum + "-" + dateToday;
 			//System.out.println("** invNum=" + invoiceNum + "--");
-			String dFmt2 = Olyutil.formatDate(effDate, "yyyy-MM-dd", "MMMM dd, yyyy");
+			//String dFmt2 = Olyutil.formatDate(effDate, "yyyy-MM-dd", "MMMM d, yyyy");
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 			 LocalDate effectiveDate = LocalDate.parse(effDate, formatter);
 			LocalDate effDateMinus1 = effectiveDate.plusDays(-1);
-			String dFmtPlus = Olyutil.formatDate(effDateMinus1.toString(), "yyyy-MM-dd", "MMMM dd, yyyy");
+			//String dFmtPlus = Olyutil.formatDate(effDateMinus1.toString(), "yyyy-MM-dd", "MMMM d, yyyy");
 			
 			
+			String dFmtPlus = Olyutil.formatDate(effDateMinus1.toString(), "yyyy-MM-dd", "M/d/yyyy");
+			String dFmt2 = Olyutil.formatDate(effDate, "yyyy-MM-dd", "M/d/yyyy");
 			 
 			XSSFRow row = sheet1.getRow(5);
 			XSSFCell cell = row.getCell(4);
@@ -512,18 +514,23 @@ public class CodeExcel extends HttpServlet {
 			
 			row = sheet1.getRow(15);
 			cell = row.getCell(4);
-			cell.setCellValue(agreementNum);
+			cell.setCellValue("FIS"+agreementNum);
 			
 			
 			
 			row = sheet1.getRow(21);
 			cell = row.getCell(4);
 			//cell.setCellValue(Olyutil.decimalfmt(contractData.getBuyOut(), "$###,##0.00"));
-			cell.setCellValue(Olyutil.decimalfmt(contractData.getBuyOutWithTax(), "$###,##0.00"));
+			//cell.setCellValue(Olyutil.decimalfmt(contractData.getBuyOutWithTax(), "$###,##0.00"));
+			
+			cell.setCellValue(contractData.getBuyOutWithTax()); // make value double
 
 			row = sheet1.getRow(40);
 			cell = row.getCell(4);
-			cell.setCellValue(Olyutil.decimalfmt(contractData.getBuyOutWithTax(), "$###,##0.00"));
+			//cell.setCellValue(Olyutil.decimalfmt(contractData.getBuyOutWithTax(), "$###,##0.00"));
+			
+			cell.setCellValue(contractData.getBuyOutWithTax()); // make double
+
 			
 			//cell.setCellValue(Olyutil.decimalfmt(contractData.getBuyOut(), "$###,##0.00"));
 			//sheet1.addMergedRegion(new CellRangeAddress(40, 41, 4, 4));
@@ -554,7 +561,7 @@ public class CodeExcel extends HttpServlet {
 		String boDate = "";
 		String buyOutAmt = "";
 		String effectiveDate = "";
-		String dFmt = Olyutil.formatDate(dateStamp, "yyyy-MM-dd", "MMMM dd, yyyy");
+		String dFmt = Olyutil.formatDate(dateStamp, "yyyy-MM-dd", "MMMM d, yyyy");
 		
 		XSSFRow row = sheet1.getRow(9);
 		XSSFCell cell = row.getCell(5);
@@ -579,14 +586,20 @@ public class CodeExcel extends HttpServlet {
 				boDate = contractData.getBuyOutDate();
 				//buyOutAmt = Olyutil.decimalfmt(contractData.getBuyOut(), "$###,##0.00");
 				
-				buyOutAmt = Olyutil.decimalfmt(contractData.getBuyOutWithTax(), "$###,##0.00");
+				//buyOutAmt = Olyutil.decimalfmt(contractData.getBuyOutWithTax(), "$###,##0.00");
+				buyOutAmt = Olyutil.decimalfmt(contractData.getBuyOutInvoiceTotal(), "$###,##0.00");
+				
+				
 				//System.out.println("*** contractID=" + contractID + "-- AgreementNum=" + agreementNum);
 				effectiveDate = contractData.getEffectiveDate();
 				//System.out.println("*** effectiveDate = " + effectiveDate + "--");
 			}  
 		}
 		 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-		 DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("MM-dd-yyyy");
+		 //DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("MM-dd-yyyy");
+		 
+		 DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("MMMM d, yyyy");
+		 
 	     
 		//convert String to LocalDate
 	     LocalDate effDate = LocalDate.parse(effectiveDate, formatter);
@@ -598,7 +611,11 @@ public class CodeExcel extends HttpServlet {
 	     
 	     
 		//String dFmt2 = Olyutil.formatDate(boDate, "yyyy-MM-dd", "MMMM dd, yyyy");
-		 String line1 = "this purchase.   Failure to fax the countersigned letter by "   + dMinus15 +  " and remit payment no later";
+		 //String line1 = "this purchase.   Failure to fax the countersigned letter by "   + dMinus15 +  " and remit payment no later";
+		 
+		 String line1 = "this purchase.   Failure to fax the countersigned letter by "   + dMinus1 +  " and remit payment no later";
+
+		 
 		 String line2 = " than " + dMinus1 + " shall be deemed a withdrawal of your intention to purchase the Equipment, and invoices";
 		 
 		row = sheet1.getRow(11);
@@ -634,7 +651,7 @@ public class CodeExcel extends HttpServlet {
 		
 		row = sheet1.getRow(16);
 		cell = row.getCell(5);
-		cell.setCellValue(agreementNum);
+		cell.setCellValue("FIS"+agreementNum);
 
 		row = sheet1.getRow(18);
 		cell = row.getCell(5);
@@ -660,148 +677,6 @@ public class CodeExcel extends HttpServlet {
 		
 	}
 	/****************************************************************************************************************************************************/
-	public static void doInvoiceStatement_ORIG(XSSFWorkbook workbook, String tab, List<Pair<ContractData, List<AssetData> >> rtnPair, String dateStamp, ArrayList<String> ageArr, HashMap<String, Double> invoiceTotalsMap ) throws IOException {
-
-		
-		int listArrSZ = rtnPair.size();
-		ContractData contractData = new ContractData();
-		AssetData assets = new AssetData();
-		XSSFSheet sheet1 = workbook.getSheet(tab);
-		// Sheet mySheet = wb.getSheetAt(0);
-		String contractID = "";
-		String agreementNum = "";
-		String custName = "";
-		String custAddr1 = "";
-		String custAddr2 = "";
-		String custCity = "";
-		String custState = "";
-		String custZip = "";
-		String boDate = "";
-		String buyOutAmt = "";
-		String effDate = "";
-		double buy = 0.00;
-		String dFmt = Olyutil.formatDate(dateStamp, "yyyy-MM-dd", "MMMM dd, yyyy");
-		String[] lineArr = null;
-		//System.out.println("** DATE=" + dFmt + "--");
-		if (listArrSZ > 0) {	
-			//System.out.println("*** listArrSZ=" + listArrSZ);
-		 
-			 
-			
-			for (int i = 0; i < listArrSZ; i++ ) {
-				contractData = rtnPair.get(i).getLeft();
-				contractID = contractData.getContractID();
-				agreementNum = contractData.getCustomerID();
-				effDate = contractData.getEffectiveDate();
-				custName = contractData.getCustomerName();
-				custAddr1 = contractData.getCustomerAddr1();
-				custAddr2 = contractData.getCustomerAddr2();
-				custCity = contractData.getCustomerCity();
-				custState = contractData.getCustomerState();
-				custZip = contractData.getCustomerZip();
-				buy = contractData.getBuyTotal();			
-			}
-			
-			String dFmt2 = Olyutil.formatDate(effDate, "yyyy-MM-dd", "MMMM dd, yyyy");
-			 
-			XSSFRow row = sheet1.getRow(3);
-			XSSFCell cell = row.getCell(4);
-			cell.setCellValue(dFmt); 
-		
-			 
-			row = sheet1.getRow(18);
-			cell = row.getCell(1);
-			cell.setCellValue(contractData.getInvoice());
-			 
-			row = sheet1.getRow(18);
-			cell = row.getCell(2);
-			cell.setCellValue(effDate);
-			row = sheet1.getRow(18);
-			cell = row.getCell(3);
-			cell.setCellValue("Buyout Payment");
-			
-			row = sheet1.getRow(18);
-			cell = row.getCell(4);
-			cell.setCellValue(Olyutil.decimalfmt(contractData.getBuyOut(), "$###,##0.00"));
-			
-			row = sheet1.getRow(8);
-			cell = row.getCell(1);
-			cell.setCellValue(custName);
-		
-			
-			row = sheet1.getRow(9);
-			cell = row.getCell(1);
-			cell.setCellValue(custAddr1);
-			
-			if (! Olyutil.isNullStr(custAddr2)) {
-				row = sheet1.getRow(10);
-				cell = row.getCell(1);
-				cell.setCellValue(custAddr2);
-				row = sheet1.getRow(11);
-				cell = row.getCell(1);
-				cell.setCellValue(custCity + ", " + custState+ " " + custZip);	
-				
-			} else {
-				row = sheet1.getRow(10);
-				cell = row.getCell(1);
-				cell.setCellValue(custCity + ", " + custState+ " " + custZip);	
-			}
-			
-	
-			
-			row = sheet1.getRow(11);
-			cell = row.getCell(4);
-			cell.setCellValue(agreementNum);
-			
-			/*row = sheet1.getRow(21);
-			cell = row.getCell(4);
-			cell.setCellValue(Olyutil.decimalfmt(contractData.getBuyOut(), "$###,##0.00"));
-			*/
-
-			row = sheet1.getRow(43);
-			cell = row.getCell(4);
-			
-			
-			cell.setCellValue(Olyutil.decimalfmt(contractData.getBuyOut(), "$###,##0.00"));
-			//sheet1.addMergedRegion(new CellRangeAddress(40, 41, 4, 4));
-			int k = 19;
-			int zz = 0;
-			double amt = 0.00;
-			int ageArrSZ = ageArr.size();
-			// ********************* Begin display assets
-			for (int m = 0; m < ageArrSZ; m++ ) {
-				zz = m;
-				
-
-					lineArr = Olyutil.splitStr(ageArr.get(m), ";");
-					if (contractID.equals(lineArr[0])) {
-						/* System.out.println("***^^^*** LineArr:" + 
-								"M=" + m
-								+ " -- ID="     + contractID 
-								+ " -- invoice=" + lineArr[6]
-								+ " -- Date="     + lineArr[5]
-								+ " -- amt="     + lineArr[4]							 
-								+ "--");  */
-						amt = Olyutil.strToDouble(lineArr[4]);
-						row = sheet1.getRow(k);
-						cell = row.getCell(1);
-						cell.setCellValue(lineArr[6]);
-						
-						cell = row.getCell(2);
-						cell.setCellValue( lineArr[5]);
-						
-						cell = row.getCell(3);
-						cell.setCellValue( "");
-						
-						cell = row.getCell(4);
-						cell.setCellValue( Olyutil.decimalfmt(amt, "$###,##0.00"));				
-						k++;		
-					}
-					
-			}	
-			//System.out.println("***^^^*** End Invoice code  M=" + zz + " -- SZ=" + ageArrSZ);			
-		} // end if SZ	
-	}
 	
 	
 	/****************************************************************************************************************************************************/
@@ -825,7 +700,9 @@ public class CodeExcel extends HttpServlet {
 		String buyOutAmt = "";
 		String effDate = "";
 		double buy = 0.00;
-		String dFmt = Olyutil.formatDate(dateStamp, "yyyy-MM-dd", "MMMM dd, yyyy");
+		 String dFmt = Olyutil.formatDate(dateStamp, "yyyy-MM-dd", "MMMM d, yyyy");
+	 
+		
 		String[] lineArr = null;
 		//System.out.println("** DATE=" + dFmt + "--");
 		
@@ -849,19 +726,32 @@ public class CodeExcel extends HttpServlet {
 				buy = contractData.getBuyTotal();			
 			}
 			// Fix invoice date -- 2021-02-17
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+			 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+			
+			 
+			
 			LocalDate effectiveDate = LocalDate.parse(effDate, formatter);
 			LocalDate effDateMinus1 = effectiveDate.plusDays(-1);
 			
 			String dateToday = Olyutil.formatDate(dateStamp, "yyyy-MM-dd", "yyyyMMdd");
+			
+			
 			String invoiceNum = agreementNum + "-" + dateToday;
 			//System.out.println("** invNum=" + invoiceNum + "--");		 
 			buyOutAmt = Olyutil.decimalfmt(contractData.getBuyOutWithTax(), "$###,##0.00");
-			String buyOutAmt_noTax = Olyutil.decimalfmt(contractData.getBuyOut(), "$###,##0.00");
-			String dFmt2 = Olyutil.formatDate(effDate, "yyyy-MM-dd", "MMMM dd, yyyy");
+			
+			
+			
+			//String buyOutAmt_noTax = Olyutil.decimalfmt(contractData.getBuyOut(), "$###,##0.00");
+			
+			double buyOutAmt_noTax =  contractData.getBuyOut() ;
+			
+			// dFmt2 = Olyutil.formatDate(effDate, "yyyy-MM-dd", "MMMM dd, yyyy");
+			String dFmt2 = Olyutil.formatDate(effDate, "yyyy-MM-dd", "M/d/yyyy");
+			
 			 
 			double taxedAmt_t = contractData.getBuyOutWithTax() - contractData.getBuyOut();
-			String 	taxedAmt = Olyutil.decimalfmt(taxedAmt_t, "$###,##0.00");
+			//String 	taxedAmt = Olyutil.decimalfmt(taxedAmt_t, "$###,##0.00");
 			
 			XSSFRow row = sheet1.getRow(3);
 			XSSFCell cell = row.getCell(4);
@@ -875,7 +765,14 @@ public class CodeExcel extends HttpServlet {
 			 
 			row = sheet1.getRow(18);
 			cell = row.getCell(2);
-			cell.setCellValue(effDateMinus1.toString());
+			
+			
+			
+			String dFmt3 = Olyutil.formatDate(effDateMinus1.toString(), "yyyy-MM-dd", "M/d/yyyy");
+			
+			
+			//System.out.println("*** DATE=" + effDateMinus1.toString() + "-- dfmt3=" + dFmt3 + "--");
+			cell.setCellValue(dFmt3);
 			if (taxedAmt_t > 0.00) {
 				row = sheet1.getRow(19);
 				cell = row.getCell(3);
@@ -885,7 +782,7 @@ public class CodeExcel extends HttpServlet {
 				cell = row.getCell(4);
 				
 				
-				cell.setCellValue(taxedAmt);
+				cell.setCellValue(taxedAmt_t);
 				
 			}
 			
@@ -930,7 +827,7 @@ public class CodeExcel extends HttpServlet {
 			
 			row = sheet1.getRow(11);
 			cell = row.getCell(4);
-			cell.setCellValue(agreementNum);
+			cell.setCellValue("FIS"+agreementNum);
 			
 			/*row = sheet1.getRow(21);
 			cell = row.getCell(4);
@@ -946,37 +843,7 @@ public class CodeExcel extends HttpServlet {
 			int k = 19;
 			int zz = 0;
 			double amt = 0.00;
-			//int ageArrSZ = ageArr.size();
-			// ********************* Begin display assets
-		  /*
-			for (int m = 0; m < ageArrSZ; m++ ) {
-				zz = m;
-				
- 
-					lineArr = Olyutil.splitStr(ageArr.get(m), ";");
-					if (contractID.equals(lineArr[0])) {
-					
-						amt = Olyutil.strToDouble(lineArr[4]);
-						row = sheet1.getRow(k);
-						cell = row.getCell(1);
-						cell.setCellValue(lineArr[6]);
-						
-						cell = row.getCell(2);
-						//cell.setCellValue( lineArr[5]);
-						cell.setCellValue( effDateMinus1.toString());
-						
-						cell = row.getCell(3);
-						cell.setCellValue( "");
-						
-						cell = row.getCell(4);
-						cell.setCellValue( Olyutil.decimalfmt(amt, "$###,##0.00"));				
-						k++;		
-					}
-					
-			}	
-	 */
-			//System.out.println("***^^^*** End Invoice code  M=" + zz + " -- SZ=" + ageArrSZ);		
-			
+
 			// Process invoice hash
 			
 			
@@ -991,15 +858,18 @@ public class CodeExcel extends HttpServlet {
 				row = sheet1.getRow(k);
 				cell = row.getCell(1);
 				cell.setCellValue(entry.getKey());
+				//String dFmt4 = Olyutil.formatDate(effDateMinus1.toString(), "yyyy-MM-dd", "M/d/yyyy");
 				
 				cell = row.getCell(2);
-				cell.setCellValue( effDateMinus1.toString());
+				cell.setCellValue( dFmt3);
 				
 				cell = row.getCell(3);
 				cell.setCellValue( "");
 				
 				cell = row.getCell(4);
-				cell.setCellValue( Olyutil.decimalfmt(entry.getValue(), "$###,##0.00"));				
+				//cell.setCellValue( Olyutil.decimalfmt(entry.getValue(), "$###,##0.00"));	
+				cell.setCellValue(entry.getValue());	
+				
 				k++;		
 				
 				
@@ -1009,20 +879,24 @@ public class CodeExcel extends HttpServlet {
 			
 		  
 			cell = row.getCell(4);
-			cell.setCellValue( Olyutil.decimalfmt(contractTotal, "$###,##0.00"));			
+			//cell.setCellValue( Olyutil.decimalfmt(contractTotal, "$###,##0.00"));	
+			cell.setCellValue( contractTotal);	
+			
+			
 			row = sheet1.getRow(44);
 			
 			row = sheet1.getRow(43);
 			cell = row.getCell(4);
 			
-			System.out.println("*** BO=" + buyOutAmt + "--");
+			//System.out.println("*** BO=" + buyOutAmt + "--");
 			
-		  buyOutAmt = buyOutAmt.replace("$", "");
+		    buyOutAmt = buyOutAmt.replace("$", "");
 			double tot = Olyutil.strToDouble(buyOutAmt) + contractTotal;
 			
-			cell.setCellValue(Olyutil.decimalfmt((tot), "$###,##0.00"));
+			//cell.setCellValue(Olyutil.decimalfmt((tot), "$###,##0.00"));
 			
-			
+			cell.setCellValue(tot);
+			contractData.setBuyOutInvoiceTotal(tot);
 			
 		} // end if SZ	
 
@@ -1079,13 +953,15 @@ public class CodeExcel extends HttpServlet {
 				.getAttribute("rtnPair");
 
 		// strArr = (ArrayList<String>) session.getAttribute("strArr");
-		doBuyoutLetter(workbook, FILE_NAME, tab1, excelTemplate, dateStamp, list);
+		
 
 		// XSSFSheet sheet2 = getWorkSheet(workbook, "Buyout_Invoice");
 		doBuyoutInvoice(workbook, "Buyout_Invoice", list, dateStamp);
 		doInvoiceStatement(workbook, "Buyout_Statement", list, dateStamp, ageArr, invoiceTotalsMap);
 		//System.out.println("** Call contractHeader");
 		// workbook = newWorkbook();
+		
+		doBuyoutLetter(workbook, FILE_NAME, tab1, excelTemplate, dateStamp, list);
 		sheet = newWorkSheet(workbook, "Asset List Report");
 		contractHeader(workbook, sheet, contractHeaderArr);
 
