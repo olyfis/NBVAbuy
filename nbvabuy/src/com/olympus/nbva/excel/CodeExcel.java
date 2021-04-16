@@ -772,19 +772,9 @@ public class CodeExcel extends HttpServlet {
 			
 			
 			//System.out.println("*** DATE=" + effDateMinus1.toString() + "-- dfmt3=" + dFmt3 + "--");
+			
+			
 			cell.setCellValue(dFmt3);
-			if (taxedAmt_t > 0.00) {
-				row = sheet1.getRow(19);
-				cell = row.getCell(3);
-				cell.setCellValue("Tax Payment");
-				
-				row = sheet1.getRow(19);
-				cell = row.getCell(4);
-				
-				
-				cell.setCellValue(taxedAmt_t);
-				
-			}
 			
 			
 			row = sheet1.getRow(18);
@@ -848,12 +838,20 @@ public class CodeExcel extends HttpServlet {
 			
 			
 			
+			
+		  
+			
+			/*************************************************************************************************************/
+			
+			/***************************************************************************************************************/
 			for (Map.Entry<String, Double> entry : invoiceTotalsMap.entrySet()) {
 				//System.out.println("*** Key:" + entry.getKey() + " --> Value:" + entry.getValue() + "--");
 				
 				if (entry.getKey().equals("contractTotal")) {
-					contractTotal = entry.getValue();	
+					contractTotal = entry.getValue();
+					k++;
 					continue;
+					
 				}
 				row = sheet1.getRow(k);
 				cell = row.getCell(1);
@@ -864,12 +862,12 @@ public class CodeExcel extends HttpServlet {
 				cell.setCellValue( dFmt3);
 				
 				cell = row.getCell(3);
-				cell.setCellValue( "");
+				cell.setCellValue( "Usage:");
 				
 				cell = row.getCell(4);
 				//cell.setCellValue( Olyutil.decimalfmt(entry.getValue(), "$###,##0.00"));	
 				cell.setCellValue(entry.getValue());	
-				
+				//System.out.println("*** Setting (4) Key:" + entry.getKey() + " --> Value:" + entry.getValue() + "-- k=" + k +"--");
 				k++;		
 				
 				
@@ -877,13 +875,25 @@ public class CodeExcel extends HttpServlet {
 				
 			} // End For process hash map
 			
-		  
-			cell = row.getCell(4);
-			//cell.setCellValue( Olyutil.decimalfmt(contractTotal, "$###,##0.00"));	
-			cell.setCellValue( contractTotal);	
 			
+			if (taxedAmt_t > 0.00) {
+				row = sheet1.getRow(k);
+				//System.out.println("*** Tax=" +  taxedAmt_t + "-- Row="  + k + "--");
+				cell = row.getCell(2);
+				cell.setCellValue( dFmt3);
+				
+				
+				
+				
+				cell = row.getCell(3);
+				cell.setCellValue("Tax Payment");
 			
-			row = sheet1.getRow(44);
+				cell = row.getCell(4);
+				//System.out.println("*** Set  Tax=" +  taxedAmt_t + "-- Row="  + k + "-- cellVal=" + cell.getColumnIndex() + "--");
+				cell.setCellValue(taxedAmt_t);
+				
+			}
+			
 			
 			row = sheet1.getRow(43);
 			cell = row.getCell(4);
@@ -894,9 +904,11 @@ public class CodeExcel extends HttpServlet {
 			double tot = Olyutil.strToDouble(buyOutAmt) + contractTotal;
 			
 			//cell.setCellValue(Olyutil.decimalfmt((tot), "$###,##0.00"));
-			
+			//System.out.println("*** Tot=" +  tot + "--");
 			cell.setCellValue(tot);
 			contractData.setBuyOutInvoiceTotal(tot);
+			
+			
 			
 		} // end if SZ	
 
@@ -929,7 +941,7 @@ public class CodeExcel extends HttpServlet {
 			String headerFile = "C:\\Java_Dev\\props\\headers\\NBVA\\NBVA_AssetHrdExcel.txt";
 			String ageFile = "C:\\Java_Dev\\props\\nbvabuy\\dailyAge.csv";
 			String FILE_NAME = "NBVA_Asset_List_Report_" + dateStamp + ".xlsx";
-			String excelTemplate = "C:\\Java_Dev\\props\\nbvabuy\\excelTemplates\\letter.xlsx";		
+			String excelTemplate = "C:\\Java_Dev\\props\\nbvabuy\\excelTemplates\\letterUpdate.xlsx";		
 			XSSFWorkbook workbook = null;
 			XSSFSheet sheet = null;
 			

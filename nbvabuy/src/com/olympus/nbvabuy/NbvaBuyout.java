@@ -76,7 +76,7 @@ public class NbvaBuyout extends HttpServlet {
 	//static String sqlFile = "C:\\Java_Dev\\props\\sql\\NBVAassetList_V4.sql";
 	//static String hdrFile = "C:\\Java_Dev\\props\\headers\\NBVA_Hdr_V4.txt";
 	
-	static String sqlFile = "C:\\Java_Dev\\props\\sql\\NBVAbuy\\NBVA_assetBuy_V5.sql";
+	static String sqlFile = "C:\\Java_Dev\\props\\sql\\NBVAbuy\\NBVA_assetBuy_V6.sql";
 	 static String hdrFile = "C:\\Java_Dev\\props\\headers\\NBVA\\NBVA_assetBuy_fullQueryHdr_v2.txt";
 	static String kitFileName = "C:\\Java_Dev\\props\\kitdata\\kitdata.csv";
 	//static boolean contractStat = false;
