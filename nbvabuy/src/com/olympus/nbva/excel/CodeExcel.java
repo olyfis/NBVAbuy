@@ -611,9 +611,9 @@ public class CodeExcel extends HttpServlet {
 	     
 	     
 		//String dFmt2 = Olyutil.formatDate(boDate, "yyyy-MM-dd", "MMMM dd, yyyy");
-		 //String line1 = "this purchase.   Failure to fax the countersigned letter by "   + dMinus15 +  " and remit payment no later";
+		 String line1 = "this purchase.   Failure to fax the countersigned letter by "   + dMinus15 +  " and remit payment no later";
 		 
-		 String line1 = "this purchase.   Failure to fax the countersigned letter by "   + dMinus1 +  " and remit payment no later";
+		// String line1 = "this purchase.   Failure to fax the countersigned letter by "   + dMinus1 +  " and remit payment no later";
 
 		 
 		 String line2 = " than " + dMinus1 + " shall be deemed a withdrawal of your intention to purchase the Equipment, and invoices";

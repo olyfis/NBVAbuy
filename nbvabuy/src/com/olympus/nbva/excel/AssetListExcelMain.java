@@ -691,14 +691,34 @@ public class AssetListExcelMain extends HttpServlet {
 	    int sz = objMap.size();
 	    String key = "";
 	    int i = 0;
+	    
+	    //System.out.println("** SZ=" + sz + "--");
+	    
 	    while (it.hasNext()) {
 	        Map.Entry pair = (Map.Entry)it.next();
 	        key = (String) pair.getKey();
-	       // System.out.println("Map Size= " + sz + " -- " + pair.getKey() + " = " + pair.getValue());
+	     
+	        
+	       //System.out.println("Map Size= " + sz + " -- Key=" + pair.getKey() + "-- Value= " + pair.getValue() + "--");
 	        //System.out.println("Key=" + key);
 	        //Olyutil.printStrArray(objMap.get(key));
 	        List<Pair<ContractData, List<AssetData> >> list =  objMap.get(key);
+	        
+	        //System.out.println("** ListSZ=" + list.size() + "-- OM=" + objMap.get(key).toString() + "--");
+	        
+	        //System.out.println("** ListSZ=" + list.size() + "-- OM-SZ=" + objMap.get(key).size() + "--");
+	        
+	/*        
+	  if (objMap.get(key).isEmpty()) {
+	        	System.out.println("** Null str" );
+	        	continue;
+	        	
+	        }
+	   */     
+	        
 	        String cn = objMap.get(key).get(i).getLeft().getCustomerName();
+	        
+	        
 	        
 	        
 	        sheet = newWorkSheet(workbook, key);
@@ -794,12 +814,26 @@ public class AssetListExcelMain extends HttpServlet {
 		XSSFSheet sheet = null;
 		idArrList = (ArrayList<String>) request.getSession().getAttribute("idArrList");
 		//assetHeaderArr = Olyutil.readInputFile(headerFile);
+		
+		
+		
 		for( String idVal : idArrList) { // get data for each ID and store in hash
 			String dateFmt = Olyutil.formatDate("yyyy-MM-dd hh:mm:ss.SSS");
 			logger.info(dateFmt + ": " + "------------------Begin processing contractID: " + idVal);
 			  // System.out.println("***%%%*** ID=" + idVal);		   
 			   ArrayList<String> strArr = new ArrayList<String>();
 			   strArr = getDbData(idVal, sqlFile, "", "Asset");
+			   if (strArr.size() <= 0) {
+				   request.getSession().setAttribute("id", idVal);
+				   
+				   System.out.println("*** strArrSZ=" + strArr.size() + "--");
+				   String dispatchJSP = "/nbvaExcelError.jsp";	
+					fileHandler.close(); 
+					request.getRequestDispatcher(dispatchJSP).forward(request, response);
+				   
+			   }
+			    
+			   
 			   int arrSZ = strArr.size();
 			   idMap.put(idVal, strArr);
 			   
@@ -810,9 +844,15 @@ public class AssetListExcelMain extends HttpServlet {
 			
 			   objMap.put(idVal, rtnPair);
 		}
-
+		if (! objMap.isEmpty()) {
+			buildExcel(objMap, response, rtnAssetMap);
+		} else {
+			String dispatchJSP = "/nbvaExcelError.jsp";	
+			fileHandler.close(); 
+			request.getRequestDispatcher(dispatchJSP).forward(request, response);
+		}
 		
-		buildExcel(objMap, response, rtnAssetMap);
+		
 		
 		
 	

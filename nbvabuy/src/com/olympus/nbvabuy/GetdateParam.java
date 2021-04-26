@@ -12,6 +12,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -95,7 +97,22 @@ public class GetdateParam extends HttpServlet {
 		}
 		return strArr;
 	}
-
+	/*******************************************************************************************************************************************/
+/*	// fmt "yyyy-MM-dd"
+	// Invoke: String date2 = dateShift("2020-10-20", "yyyy-MM-dd","MM-dd-yyyy", -10);
+	public static String dateShift(String origDate, String fmtIn, String fmtOut, int offset) {
+ 
+		DateTimeFormatter formatterIn = DateTimeFormatter.ofPattern(fmtIn);
+		DateTimeFormatter formatterOut = DateTimeFormatter.ofPattern(fmtOut);
+		LocalDate modDate = LocalDate.parse(origDate, formatterIn);
+		LocalDate newDate = modDate.plusDays(offset);
+		String rtnStr = formatterOut.format(newDate);
+		
+		return (rtnStr);
+	}
+	
+	*/
+/*******************************************************************************************************************************************/
 	
 /****************************************************************************************************************************************************/
 	
@@ -122,6 +139,11 @@ public class GetdateParam extends HttpServlet {
 			String commDate_t = strSplitArr[0];
 			String newEffDate = strSplitArr[1];
 			
+			
+			String date2 = DateUtil.dateShift(newEffDate, "yyyy-MM-dd", "yyyy-MM-dd", 30);
+			
+			
+		 //System.out.println("**!!** ID=" + id + "--CD="  + commDate_t  +  "--NewEffDate="  + newEffDate  + "--D2=" + date2 + "--");
 			String commDate = "";
 			try {
 				commDate = DateUtil.getNewEffectiveDate(commDate_t);
@@ -129,12 +151,15 @@ public class GetdateParam extends HttpServlet {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			 
+			 //System.out.println("**!!** ID=" + id + "--CD_T="  + commDate_t  +  "--CommDate="   + commDate + "--NewEffDate="  + newEffDate  + "--D2=" + date2 + "--");
+
 			//System.out.println("*** NewEffectiveDate=" + commDate + "-- NewEffDate="   + newEffDate  +  "--");
 		
 		
 		request.getSession().setAttribute("commDate", commDate);
-		request.getSession().setAttribute("newEffDate", newEffDate);
+		//request.getSession().setAttribute("newEffDate", newEffDate);
+		
+		request.getSession().setAttribute("newEffDate", commDate); // Fixed 2021-04-16 date bump 30 days
 			
 		} else { // date not found for ID
 			dispatchJSP = "/nbvaerror.jsp";

@@ -3,17 +3,13 @@
     <%@page import="java.io.OutputStream"%>   
 <%@ page import="java.io.*"%>
 <%@ page import="java.util.*"%>
-<%@ page import="java.time.*"%>
 <%@ page import="javax.servlet.*"%>
     
     
     <% 
-	String title =  "Olympus NBVA Buyout Letter"; 	 
+	String title =  "Olympus NBVA Asset List Report"; 	 
 	ArrayList<String> tokens = new ArrayList<String>();
 	String formUrl =  (String) session.getAttribute("formUrl");
-	 
-	String currDate = java.time.LocalDate.now().toString();
-	//System.out.println("** CurrDate=" + currDate);
 %>
     
     
@@ -22,7 +18,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
- 
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <!--  	
 http://cvyhj3a27:8181/nbvaupdate/nbvaupdate?id=101-0010311-004&eDate=2020-03-10&boDate=2020-03-31&invoice=123123123
 
@@ -43,26 +39,6 @@ http://cvyhj3a27:8181/nbvaupdate/nbvaupdate?id=101-0010311-004&eDate=2020-03-10&
 
 
 
-<!-- ********************************************************************************************************************************************** -->
-<script type = "text/javascript">
-  // <!--
-      function validateID() {
-         var idVal = document.myForm.id.value;
-         twopos = idVal.indexOf("2");
-         dotpos = idVal.lastIndexOf(".");
-         
-         if (twopos < 1 || ( dotpos - twopos < 2 )) {
-            alert("Please enter correct ID")
-            document.myForm.id.focus() ;
-            return false;
-         }
-         return( true );
-      }
-   //-->
-</script>
-
-
-<!-- ********************************************************************************************************************************************** -->
 
 <script language="javascript" type="text/javascript">
  
@@ -114,6 +90,40 @@ function ajaxFunction(){
 	ajaxRequest.send(); 
 }
 
+
+
+
+
+
+
+
+
+
+
+$(document).ready(function() {
+    var max_fields = 10;
+    var wrapper = $(".container1");
+    var add_button = $(".add_form_field");
+
+    var x = 1;
+    $(add_button).click(function(e) {
+        e.preventDefault();
+        if (x < max_fields) {
+            x++;
+           // $(wrapper).append('<div><input type="text" name="mytext[]"/><a href="#" class="delete">Delete</a></div>'); //add input box
+            $(wrapper).append('<tr><td><div><input type="text" name="mytext[]" pattern="[^\s]+" required /><a href="#" class="delete">Delete</a></div></td></tr>'); //add input box
+
+        } else {
+            alert('You Reached the limits')
+        }
+    });
+
+    $(wrapper).on("click", ".delete", function(e) {
+        e.preventDefault();
+        $(this).parent('div').remove();
+        x--;
+    })
+});
  
 </script>
 
@@ -128,17 +138,6 @@ function ajaxFunction(){
     
     
  <%@include  file="includes/header.html" %>
-
-
-<%-- Req for Salesforce Ajax menu 
-<jsp:include page="/sfquery" flush="true" /> --%>
-<c:out value="${strArrID}"></c:out>
- 
-  <c:forEach items="${strArrID}" var="id">
-            ${id.id} <br />
-        </c:forEach>
-        
-<!--   <img src="includes\images\logo.jpg" alt="logo"  height="100" width="225" align="right"> -->
 
 
 <div style="padding-left:20px">
@@ -158,8 +157,8 @@ function ajaxFunction(){
 <BR>
 
 
-	<!--   <form name="actionform" method="get" action="nbvabuy" name=id'>  -->
-<form name="actionform" method="post" enctype="multipart/form-data" action="nbvabuyout"  onsubmit = "return(validateID());" > 
+	<form name="actionform" method="get" action="nbvalist" name=id'>
+
 <BR>
 
 
@@ -170,13 +169,42 @@ function ajaxFunction(){
     <!--  Inner Table -->
     <table class="a" width="100%"  border="1" cellpadding="1" cellspacing="1">
   <tr>
- 
-  <td width="60" valign="bottom"> <b>Enter Contract Number:</b> </td> 
+ <!--   
+  <td width="20" valign="bottom"> <b>Enter Contract Number:</b> </td> 
   <td width="20" valign="bottom">  
+  -->
      <% // out.println("<input name=\"startDate\" id=\"date2\" type=\"text\" value=\"Click for Calendar\" onclick=\"pureJSCalendar.open('yyyy-MM-dd', 20, 30, 7, '2017-1-1', '2025-12-31', 'date2', 20)\"   />" );
      %>
     <!--  <CENTER>  <input name="id" type="text"  value="101-0009442-019" /> </CENTER>  -->
-      <CENTER>  <input name="id" type="text"  value="101-0010311-004" /> </CENTER>
+      <CENTER>  
+      
+      <!--  <input name="id" type="text"   />  -->
+      
+      <div class="container1">
+      
+       <td width="20" valign="bottom"> <!--  <b>Enter Contract Number:</b>  -->
+       
+       <button class="add_form_field">Add Contract &nbsp; 
+      <span style="font-size:16px; font-weight:bold;">+ </span>
+    </button>
+       
+       
+       </td> 
+       
+       
+  <td width="20" valign="bottom">  
+      
+     <!--   
+    <button class="add_form_field">Add Contract &nbsp; 
+      <span style="font-size:16px; font-weight:bold;">+ </span>
+    </button>
+     -->
+    <div><input type="text" name="mytext[]" pattern="[^\s]+" required></div>
+</div>
+      
+      
+      
+      </CENTER>
      
   </td>
   </tr>
@@ -195,7 +223,7 @@ function ajaxFunction(){
   -->
    <!-- ********************************************************************************************************************************************************* -->
  <!--    <tr>
-  <td width="60" valign="bottom"> <b>RollOver:</b> </td> 
+  <td width="20" valign="bottom"> <b>RollOver:</b> </td> 
   <td width="20" valign="bottom"> 
    <center>
       <select name="rotype"  >
@@ -209,9 +237,9 @@ function ajaxFunction(){
   </tr>
   -->
   <!-- ********************************************************************************************************************************************************* -->
-  
+   <!--  
    <tr>
-  <td width="60" valign="bottom"> <b>Effective Date: ( <font color="red">Later than: <%=currDate%> </font>)</b> </td> 
+  <td width="20" valign="bottom"> <b>Effective Date:</b> </td> 
   <td width="20" valign="bottom"> 
    <center>
    <% out.println("<input name=\"eDate\" id=\"date2\" type=\"text\" value=\"Click for Calendar\" onclick=\"pureJSCalendar.open('yyyy-MM-dd', 20, 30, 7, '2017-1-1', '2025-12-31', 'date2', 20)\"   />" );
@@ -220,7 +248,7 @@ function ajaxFunction(){
   
    </td>
   </tr>
-  <!--  
+ 
   <tr>
   <td width="20" valign="bottom"> <b>Buyout Date:</b> </td> 
   <td width="20" valign="bottom"> 
@@ -233,26 +261,18 @@ function ajaxFunction(){
   </tr>
   -->
   <!-- ********************************************************************************************************************************************************* -->
-		    <!--   
-		     <tr>
-		  <td width="20" valign="bottom"> <b>Enter Invoice Number:</b> </td> 
-		  <td width="20" valign="bottom">  
-		      <CENTER>  <input name="invoice" type="text"   /> </CENTER>
-		  </td>
-		  </tr>
-		  --> 
-      <!-- ********************************************************************************************************************************************************* -->
-   <!--  
-      <tr>
-  <td width="20" valign="bottom"> <b>Select Disposition Code Update File:</b> </td> 
+    
+    <!-- 
+     <tr>
+ 
+  <td width="20" valign="bottom"> <b>Enter Invoice Number:</b> </td> 
   <td width="20" valign="bottom">  
-      <CENTER>  <input type="file" name="file" size="25" />
+   
+      <CENTER>  <input name="invoice" type="text"   /> </CENTER>
      
-      </CENTER>
   </td>
   </tr>
-     
-     -->
+  -->    
      
      <!-- ********************************************************************************************************************************************************* -->
      
@@ -273,9 +293,7 @@ function ajaxFunction(){
 	   <td> 
 	  --> 
 	 <CENTER> 
-    <INPUT type="submit" value="Submit">  
-     <input type="reset" value="Clear"/>
-     </CENTER>
+    <INPUT type="submit" value="Submit">  </CENTER>
      </td>  
 	
   </tr>
@@ -285,6 +303,15 @@ function ajaxFunction(){
 
  </form>
 <h5>If you require access to the reports, please contact: John.Freeh@olympus.com</h5>
-<h5>Note: <font color="red">Requires Javascript to be enabled.</font> <BR>
+<h5>Note: <font color="red">Requires using Chrome browser and that Javascript is enabled.</font> <BR>
+
+<!--  
+<div class="container1">
+    <button class="add_form_field">Add Contract &nbsp; 
+      <span style="font-size:16px; font-weight:bold;">+ </span>
+    </button>
+    <div><input type="text" name="mytext[]"></div>
+</div>
+ -->
 </body>
 </html>
