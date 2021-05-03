@@ -278,7 +278,7 @@ public void  buildCellsTotals( JspWriter out, ContractData contract, String form
 	out.println( "<td class=\"a\">" + hold + "</td></tr>");
 	
 	out.println("<tr>"); 
-	out.println("<th class=\" " + style + "  \" >Taxes Paid</th>");
+	out.println("<th class=\" " + style + "  \" >Taxes</th>");
 	out.println( "<td class=\"a\">" + taxesPaid + "</td></tr>");
 	
 	out.println("<tr>");
@@ -757,7 +757,7 @@ public String  buildCellsAsset( HashMap<String, String> hm, JspWriter out,  List
 
 	  %> 
 	  </div>
-	  <div>Billed and Outstanding 
+	  <div>Buyout Data 
 	   <%
 		/* Display Contract Totals */
 		out.println("<table class=\"tablesorter\" border=\"1\"  width=\"600\"> <thead> <tr>");
