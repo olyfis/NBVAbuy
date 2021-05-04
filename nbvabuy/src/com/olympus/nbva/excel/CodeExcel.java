@@ -504,7 +504,7 @@ public class CodeExcel extends HttpServlet {
 			}
 			
 			// Fix date 2021=01-26
-			row = sheet1.getRow(15);
+			row = sheet1.getRow(16);
 			cell = row.getCell(1);
 			//cell.setCellValue(effDateMinus1.toString());
 			cell.setCellValue(dFmtPlus);
@@ -512,7 +512,7 @@ public class CodeExcel extends HttpServlet {
 			
 			
 			
-			row = sheet1.getRow(15);
+			row = sheet1.getRow(16);
 			cell = row.getCell(4);
 			cell.setCellValue("FIS"+agreementNum);
 			
@@ -523,7 +523,21 @@ public class CodeExcel extends HttpServlet {
 			//cell.setCellValue(Olyutil.decimalfmt(contractData.getBuyOut(), "$###,##0.00"));
 			//cell.setCellValue(Olyutil.decimalfmt(contractData.getBuyOutWithTax(), "$###,##0.00"));
 			
-			cell.setCellValue(contractData.getBuyOutWithTax()); // make value double
+			cell.setCellValue(contractData.getBuyOut()); // make value double
+			
+			double taxedBuyout_t = contractData.getBuyOutWithTax();
+			double buyOut = contractData.getBuyOut();
+			double taxesPaid_t =  taxedBuyout_t - buyOut;
+			
+			// Set tax payment in invoice
+			row = sheet1.getRow(37); // Set tax
+			cell = row.getCell(4);
+			//cell.setCellValue(Olyutil.decimalfmt(contractData.getBuyOutWithTax(), "$###,##0.00"));
+			
+			cell.setCellValue(taxesPaid_t); // make double
+			
+			
+			
 
 			row = sheet1.getRow(40);
 			cell = row.getCell(4);
@@ -680,6 +694,8 @@ public class CodeExcel extends HttpServlet {
 	
 	
 	/****************************************************************************************************************************************************/
+	
+	// Buyout Statement
 	public static void doInvoiceStatement(XSSFWorkbook workbook, String tab, List<Pair<ContractData, List<AssetData> >> rtnPair, String dateStamp, ArrayList<String> ageArr, HashMap<String, Double> invoiceTotalsMap ) throws IOException {
 
 		
@@ -700,6 +716,7 @@ public class CodeExcel extends HttpServlet {
 		String buyOutAmt = "";
 		String effDate = "";
 		double buy = 0.00;
+		double invoiceTot = 0.00;
 		 String dFmt = Olyutil.formatDate(dateStamp, "yyyy-MM-dd", "MMMM d, yyyy");
 	 
 		
@@ -845,7 +862,7 @@ public class CodeExcel extends HttpServlet {
 			
 			/***************************************************************************************************************/
 			for (Map.Entry<String, Double> entry : invoiceTotalsMap.entrySet()) {
-				//System.out.println("*** Key:" + entry.getKey() + " --> Value:" + entry.getValue() + "--");
+				System.out.println("*** Key:" + entry.getKey() + " --> Value:" + entry.getValue() + "--");
 				
 				if (entry.getKey().equals("contractTotal")) {
 					contractTotal = entry.getValue();
@@ -866,8 +883,9 @@ public class CodeExcel extends HttpServlet {
 				
 				cell = row.getCell(4);
 				//cell.setCellValue( Olyutil.decimalfmt(entry.getValue(), "$###,##0.00"));	
-				cell.setCellValue(entry.getValue());	
-				//System.out.println("*** Setting (4) Key:" + entry.getKey() + " --> Value:" + entry.getValue() + "-- k=" + k +"--");
+				cell.setCellValue(entry.getValue());
+				invoiceTot += entry.getValue();
+				System.out.println("*** Setting (4) Key:" + entry.getKey() + " --> Value:" + entry.getValue() + "-- k=" + k +"-- IT=" + invoiceTot + "--");
 				k++;		
 				
 				
@@ -875,7 +893,7 @@ public class CodeExcel extends HttpServlet {
 				
 			} // End For process hash map
 			
-			
+			/*   hold off on this section for now 2021-05-04 
 			if (taxedAmt_t > 0.00) {
 				row = sheet1.getRow(k);
 				//System.out.println("*** Tax=" +  taxedAmt_t + "-- Row="  + k + "--");
@@ -893,7 +911,7 @@ public class CodeExcel extends HttpServlet {
 				cell.setCellValue(taxedAmt_t);
 				
 			}
-			
+			*/
 			
 			row = sheet1.getRow(43);
 			cell = row.getCell(4);
@@ -901,12 +919,19 @@ public class CodeExcel extends HttpServlet {
 			//System.out.println("*** BO=" + buyOutAmt + "--");
 			
 		    buyOutAmt = buyOutAmt.replace("$", "");
-			double tot = Olyutil.strToDouble(buyOutAmt) + contractTotal;
-			
+		    
+		    
+		    
+			//double tot = Olyutil.strToDouble(buyOutAmt) + contractTotal;
+		    double tot = Olyutil.strToDouble(buyOutAmt) + invoiceTot;
 			//cell.setCellValue(Olyutil.decimalfmt((tot), "$###,##0.00"));
 			//System.out.println("*** Tot=" +  tot + "--");
-			cell.setCellValue(tot);
-			contractData.setBuyOutInvoiceTotal(tot);
+			
+			
+			 cell.setCellValue(tot); // remove taxes
+			 contractData.setBuyOutInvoiceTotal(tot);
+			
+	 
 			
 			
 			
