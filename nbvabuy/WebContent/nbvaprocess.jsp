@@ -169,6 +169,8 @@ function ajaxFunction(){
      %>
     <!--  <CENTER>  <input name="id" type="text"  value="101-0009442-019" /> </CENTER>  -->
       <CENTER>  <input name="id" type="text"  value=<%=id%> /> </CENTER>
+     <CENTER>  <input name="commDateOrig" type="hidden"  value=<%=commDate%> /> </CENTER>
+      <CENTER>  <input name="newEffDate" type="hidden"  value=<%=newEffDate%> /> </CENTER>
      
   </td>
   </tr>
@@ -218,6 +220,9 @@ function ajaxFunction(){
   <td width="20" valign="bottom"> 
    <center>
    <% out.println("<input name=\"boDate\" id=\"date3\" type=\"text\" value=\"Click for Calendar\" onclick=\"pureJSCalendar.open('yyyy-MM-dd', 20, 30, 7, '2017-1-1', '2025-12-31', 'date3', 20)\"   />" );
+     
+     
+     
      %>
    </center>
   

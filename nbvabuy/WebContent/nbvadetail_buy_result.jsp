@@ -88,7 +88,7 @@ $(function() {
 		var myID = document.getElementById(id).value;
 		//alert("****** myID=" + myID + " ID=" + id);		 
 			//window.open("http://cvyhj3a27:8181/nbvabuy/kitdata?key=" + myID);
-		window.open("http://localhost:8181/nbvabuy/kitdata?key=" + myID);
+		window.open("http://cvyhj3a27:8181/nbvabuy/kitdata?key=" + myID);
 				
 				
 	}
@@ -273,10 +273,10 @@ public void  buildCellsTotals( JspWriter out, ContractData contract, String form
 	out.println( "<td class=\"a\">" + taxedTotal + "</td></tr>"); // added 2021-002-01
 	
 	
-	out.println("<tr>"); 
+	/*out.println("<tr>"); 
 	out.println("<th class=\" " + style + "  \" >Contract Residual</th>");
 	out.println( "<td class=\"a\">" + hold + "</td></tr>");
-	
+	*/
 	out.println("<tr>"); 
 	out.println("<th class=\" " + style + "  \" >Taxes</th>");
 	out.println( "<td class=\"a\">" + taxesPaid + "</td></tr>");
@@ -393,10 +393,11 @@ public void  buildCellsContract( JspWriter out, ContractData contract, String fo
 	out.println("<th class=\" " + style + "  \" >Purchase Option</th>");
 	out.println( "<td class=\"a\">"  + contract.getPurOption() + "</td></tr>");
 	
+	/*
 	out.println("<tr>");
 	out.println("<th class=\" " + style + "  \" >Remaining Rent Receivable</th>");
 	out.println( "<td class=\"a\">"  + Olyutil.decimalfmt(contract.getRemainRentRec(), "$###,##0.00") + "</td></tr>");
-	
+	*/
 	 
  
 	out.println("<tr>");

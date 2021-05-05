@@ -17,6 +17,7 @@ import java.sql.Statement;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
@@ -1156,7 +1157,23 @@ public class NbvaBuyout extends HttpServlet {
 			return(sum);
 		}
 		/****************************************************************************************************************************************************/
+		/*******************************************************************************************************************************************/
+		// fmt "yyyy-MM-dd"
+			// Invoke: String date2 = dateShift("2020-10-20", "yyyy-MM-dd","MM-dd-yyyy", -10);
+			public static String dateShift(String origDate, String fmtIn, String fmtOut, int offset) {
+		 
+				DateTimeFormatter formatterIn = DateTimeFormatter.ofPattern(fmtIn);
+				DateTimeFormatter formatterOut = DateTimeFormatter.ofPattern(fmtOut);
+				LocalDate modDate = LocalDate.parse(origDate, formatterIn);
+				LocalDate newDate = modDate.plusDays(offset);
+				String rtnStr = formatterOut.format(newDate);
+				
+				return (rtnStr);
+			}
+	/****************************************************************************************************************************************************/
 		
+
+			
 		
 		
 		// Run: http://localhost:8181/nbvabuy/nbvabuy?id=101-0010311-004&eDate=2020-04-16
@@ -1172,7 +1189,7 @@ public class NbvaBuyout extends HttpServlet {
 		
 		 
 		HashMap<String, Double> invoiceTotalsMap = new HashMap<String, Double>();
-		
+		String newDate2 =  (String) request.getAttribute("newEffDate");
 		
 		sqlErrMap.clear();
 		ArrayList<Integer> errIDArrayRtn = new ArrayList<>();
@@ -1208,10 +1225,24 @@ public class NbvaBuyout extends HttpServlet {
 		Handler fileHandler =  OlyLog.setAppendLog(directoryName, logFileName, LOGGER );
 		Date logDate = Olyutil.getCurrentDate();
 		String dateFmt = Olyutil.formatDate("yyyy-MM-dd hh:mm:ss.SSS");
-		
-		
+ 
 		
 		DecimalFormat format = new DecimalFormat("0.00");
+		
+		
+		
+		System.out.println("**** -- NewEffDate="   + newDate2  +   "--");
+		
+		//String datePlus30 = dateShift(effDate, "yyyy-MM-dd","yyyy-MM-dd", 30);			
+		//System.out.println("**** -- NewEffDate="   + effDate  +  "--D+30="   + datePlus30  + "--");
+	
+		
+		
+		
+		
+		
+		
+		
 		Date bd = Olyutil.getCurrentDate();
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd"); 
 		String boDate = formatter.format(bd);
@@ -1249,9 +1280,14 @@ public class NbvaBuyout extends HttpServlet {
 				
 				calcArr = Olyutil.readInputFile(calcFile);
 				calcTableMap = getCalcTableMap(calcArr);
-				effDate = paramMap.get("eDate");
-				idVal = paramMap.get("id");
-				//System.out.println("!!**^^** STAT=true" );
+				
+				
+				
+				 effDate = paramMap.get("eDate");
+				 idVal = paramMap.get("id");
+				 String commDateOrig = paramMap.get("commDateOrig");
+				 
+				 System.out.println("!!**^^** eDate=" + effDate + "--commDateOrig="  +  commDateOrig   + "--");
 				request.getSession().setAttribute("paramMap", paramMap);
 				//System.out.println("!!**^^** Date=" + paramMap.get("eDate"));
 				//System.out.println("!!**^^** ID=" + paramMap.get("id"));

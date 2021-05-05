@@ -113,7 +113,18 @@ public class GetdateParam extends HttpServlet {
 	
 	*/
 /*******************************************************************************************************************************************/
-	
+	// fmt "yyyy-MM-dd"
+		// Invoke: String date2 = dateShift("2020-10-20", "yyyy-MM-dd","MM-dd-yyyy", -10);
+		public static String dateShift(String origDate, String fmtIn, String fmtOut, int offset) {
+	 
+			DateTimeFormatter formatterIn = DateTimeFormatter.ofPattern(fmtIn);
+			DateTimeFormatter formatterOut = DateTimeFormatter.ofPattern(fmtOut);
+			LocalDate modDate = LocalDate.parse(origDate, formatterIn);
+			LocalDate newDate = modDate.plusDays(offset);
+			String rtnStr = formatterOut.format(newDate);
+			
+			return (rtnStr);
+		}
 /****************************************************************************************************************************************************/
 	
 	 
@@ -142,7 +153,7 @@ public class GetdateParam extends HttpServlet {
 			
 			String date2 = DateUtil.dateShift(newEffDate, "yyyy-MM-dd", "yyyy-MM-dd", 30);
 			
-			
+	
 		 //System.out.println("**!!** ID=" + id + "--CD="  + commDate_t  +  "--NewEffDate="  + newEffDate  + "--D2=" + date2 + "--");
 			String commDate = "";
 			try {
@@ -153,8 +164,10 @@ public class GetdateParam extends HttpServlet {
 			}
 			 //System.out.println("**!!** ID=" + id + "--CD_T="  + commDate_t  +  "--CommDate="   + commDate + "--NewEffDate="  + newEffDate  + "--D2=" + date2 + "--");
 
-			//System.out.println("*** NewEffectiveDate=" + commDate + "-- NewEffDate="   + newEffDate  +  "--");
-		
+			//String datePlus30 = dateShift(newEffDate, "yyyy-MM-dd","yyyy-MM-dd", 30);
+			
+			//System.out.println("*** NewEffectiveDate=" + commDate + "-- NewEffDate="   + newEffDate  +  "--D+30="   + datePlus30  + "--");
+			System.out.println("*** NewEffectiveDate=" + commDate + "-- NewEffDate="   + newEffDate  +  "--");
 		
 		request.getSession().setAttribute("commDate", commDate);
 		//request.getSession().setAttribute("newEffDate", newEffDate);
@@ -168,7 +181,7 @@ public class GetdateParam extends HttpServlet {
 		}
 		
 		request.getSession().setAttribute("id", id);
-		
+		 
 		request.getRequestDispatcher(dispatchJSP).forward(request, response);
  
 	}  

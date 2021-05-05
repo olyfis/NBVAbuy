@@ -691,14 +691,39 @@ public class CodeExcel extends HttpServlet {
 		
 	}
 	/****************************************************************************************************************************************************/
-	
+	public static HashMap<String, String> getAssetMap(String id, ArrayList<String> strArr, String sep) {
+		HashMap<String, String> assetMap = new HashMap<String, String>();
+		String aDate = "";
+		String contractID = "";
+		String aID = "";
+		 
+		
+		for (String s : strArr) {	
+			String[] items = s.split(sep);	
+			//System.out.println("*** SZ=" + items.length + "-- " + s );
+			contractID = items[0].trim(); 
+			if (contractID.equals(id)) {
+				//System.out.println("*** Match: " +  s );
+				aDate = items[5].trim();
+				aID = items[6].trim();
+				//System.out.println("*** Match: aID=" +  aID + "-- aDate=" + aDate + "--" );
+				assetMap.put(aID, aDate);
+			}
+			 
+		 }
+		
+		return(assetMap);
+		
+	}
 	
 	/****************************************************************************************************************************************************/
 	
 	// Buyout Statement
 	public static void doInvoiceStatement(XSSFWorkbook workbook, String tab, List<Pair<ContractData, List<AssetData> >> rtnPair, String dateStamp, ArrayList<String> ageArr, HashMap<String, Double> invoiceTotalsMap ) throws IOException {
 
-		
+		String assetDate = "";
+		HashMap<String, String> assetMap = new HashMap<String, String>();
+
 		int listArrSZ = rtnPair.size();
 		ContractData contractData = new ContractData();
 		AssetData assets = new AssetData();
@@ -745,8 +770,9 @@ public class CodeExcel extends HttpServlet {
 			// Fix invoice date -- 2021-02-17
 			 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 			
+			 assetMap = getAssetMap(contractID, ageArr, ";");
 			 
-			
+			// System.out.println("** ContractID=" + contractID  + "--");
 			LocalDate effectiveDate = LocalDate.parse(effDate, formatter);
 			LocalDate effDateMinus1 = effectiveDate.plusDays(-1);
 			
@@ -855,14 +881,14 @@ public class CodeExcel extends HttpServlet {
 			
 			
 			
-			
+			//displayDataMapStr(assetMap);
 		  
 			
 			/*************************************************************************************************************/
 			
 			/***************************************************************************************************************/
 			for (Map.Entry<String, Double> entry : invoiceTotalsMap.entrySet()) {
-				System.out.println("*** Key:" + entry.getKey() + " --> Value:" + entry.getValue() + "--");
+				//System.out.println("*** Key:" + entry.getKey() + " --> Value:" + entry.getValue() + "--");
 				
 				if (entry.getKey().equals("contractTotal")) {
 					contractTotal = entry.getValue();
@@ -870,13 +896,18 @@ public class CodeExcel extends HttpServlet {
 					continue;
 					
 				}
+				if (assetMap.containsKey(entry.getKey())) {
+					assetDate = assetMap.get(entry.getKey());
+					//System.out.println("*** assetDate=" + assetDate   + "--");
+				}
+				
 				row = sheet1.getRow(k);
 				cell = row.getCell(1);
 				cell.setCellValue(entry.getKey());
 				//String dFmt4 = Olyutil.formatDate(effDateMinus1.toString(), "yyyy-MM-dd", "M/d/yyyy");
-				
+				String dFmt4 = Olyutil.formatDate(assetDate, "yyyy-MM-dd", "M/d/yyyy");
 				cell = row.getCell(2);
-				cell.setCellValue( dFmt3);
+				cell.setCellValue( dFmt4);
 				
 				cell = row.getCell(3);
 				cell.setCellValue( "Usage:");
@@ -885,7 +916,7 @@ public class CodeExcel extends HttpServlet {
 				//cell.setCellValue( Olyutil.decimalfmt(entry.getValue(), "$###,##0.00"));	
 				cell.setCellValue(entry.getValue());
 				invoiceTot += entry.getValue();
-				System.out.println("*** Setting (4) Key:" + entry.getKey() + " --> Value:" + entry.getValue() + "-- k=" + k +"-- IT=" + invoiceTot + "--");
+				//System.out.println("*** Setting (4) Key:" + entry.getKey() + " --> Value:" + entry.getValue() + "-- k=" + k +"-- IT=" + invoiceTot + "--");
 				k++;		
 				
 				
@@ -940,6 +971,16 @@ public class CodeExcel extends HttpServlet {
 
 	}
 	/****************************************************************************************************************************************************************/
+	public static void displayDataMapStr(Map<String, String> map) {
+
+		for (Map.Entry<String, String> entry : map.entrySet()) {
+			System.out.println("*** Key:" + entry.getKey() + " --> Value:" + entry.getValue() + "--");
+		}
+		System.out.println("*****************************************************************************************************");
+
+	}
+	
+	/****************************************************************************************************************************************************************/
 
 	public static void displayDataMapSD(Map<String, Double> map) {
 
@@ -982,7 +1023,7 @@ public class CodeExcel extends HttpServlet {
 		// String excelTemplateNew = "NBVA_BuyOut_Letter_" + dateStamp + ".xlsx";
 
 		ageArr = Olyutil.readInputFile(ageFile);
-		// Olyutil.printStrArray(ageArr);
+		//Olyutil.printStrArray(ageArr);
 
 		ArrayList<String> contractHeaderArr = new ArrayList<String>();
 		contractHeaderArr = Olyutil.readInputFile(contractHeaderFile);
