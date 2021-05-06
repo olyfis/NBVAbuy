@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Handler;
 import java.util.logging.Logger;
 
@@ -1171,11 +1172,34 @@ public class NbvaBuyout extends HttpServlet {
 				return (rtnStr);
 			}
 	/****************************************************************************************************************************************************/
-		
+			// Exec: diffDays = diff2Dates(  baseCommDate, date30 );
+			public static long diff2Dates(String today, String newEffDate )  {
+			
+				SimpleDateFormat myFormat = new SimpleDateFormat("yyyy-MM-dd");
+				long diff = 0;
+				long diffDate = 0;
+				
+				
+
+				try {
+					//Date date1 = myFormat.parse(today);
+					Date date1 = myFormat.parse(today);
+					Date date2 = myFormat.parse(newEffDate);
+					diff = date2.getTime() - date1.getTime();
+					
+					diffDate = TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
+					//System.out.println("***---*** Days: " + TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS));
+				} catch (ParseException e) {
+					e.printStackTrace();
+				}
+				 
+			return(diffDate);
+			}
 
 			
 		
-		
+	/****************************************************************************************************************************************************/
+	
 		// Run: http://localhost:8181/nbvabuy/nbvabuy?id=101-0010311-004&eDate=2020-04-16
 
 	@Override
@@ -1231,7 +1255,7 @@ public class NbvaBuyout extends HttpServlet {
 		
 		
 		
-		System.out.println("**** -- NewEffDate="   + newDate2  +   "--");
+		//System.out.println("**** -- NewEffDate="   + newDate2  +   "--");
 		
 		//String datePlus30 = dateShift(effDate, "yyyy-MM-dd","yyyy-MM-dd", 30);			
 		//System.out.println("**** -- NewEffDate="   + effDate  +  "--D+30="   + datePlus30  + "--");
@@ -1282,12 +1306,19 @@ public class NbvaBuyout extends HttpServlet {
 				calcTableMap = getCalcTableMap(calcArr);
 				
 				
-				
+				// check for 30 day lead time
 				 effDate = paramMap.get("eDate");
 				 idVal = paramMap.get("id");
 				 String commDateOrig = paramMap.get("commDateOrig");
+				 long diffDays = diff2Dates(  commDateOrig, effDate);
+				 System.out.println("!!**^^** eDate=" + effDate + "--***** commDateOrig="  +  commDateOrig   + "--Diffdays=" + diffDays + "--");
+				 if (diffDays > 31) {
+					 System.out.println("***** Error: Past 30 day window for buyout."); 
+					 request.getSession().setAttribute("dateErr2", "Error: Past 30 day window for buyout. -- Set date to: " + commDateOrig + "  and try again.");
+					 request.getRequestDispatcher(dispatchJSP_Error).forward(request, response);
+					 return;
+				 }
 				 
-				 System.out.println("!!**^^** eDate=" + effDate + "--commDateOrig="  +  commDateOrig   + "--");
 				request.getSession().setAttribute("paramMap", paramMap);
 				//System.out.println("!!**^^** Date=" + paramMap.get("eDate"));
 				//System.out.println("!!**^^** ID=" + paramMap.get("id"));
@@ -1382,7 +1413,7 @@ public class NbvaBuyout extends HttpServlet {
 				 sumTotal = invoiceTotalsMap.get("contractTotal");
 				 request.getSession().setAttribute("invoiceTotalsMap", invoiceTotalsMap);
 				 //displayDataMapSD(invoiceTotalsMap);
-				 System.out.println("***^^^^***** Get Contract Totals:" + sumTotal + "--");
+				// System.out.println("***^^^^***** Get Contract Totals:" + sumTotal + "--");
 				 errIDArrayRtn = doCheckDates(rtnPair, effDate, mthSpan);
 				//System.out.println("----- dateErrors=" + errIDArrayRtn.size());
 				String termDate = rtnPair.get(0).getLeft().getTermDate();

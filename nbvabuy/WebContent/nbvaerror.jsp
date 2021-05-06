@@ -27,6 +27,7 @@
 	String idErr = (String) session.getAttribute("id");
 	String idVal = (String) session.getAttribute("id");
 	String dateErr = (String) session.getAttribute("dateErr");
+	String dateErr2 = (String) session.getAttribute("dateErr2");
 	
 	 //System.out.println("*** idErr=" + idErr + "-- errDate=" + errDate + "-- ID=" + idVal);
 	
@@ -171,6 +172,10 @@ out.println("</tbody></table>"); // Close Table
 */
 if ( ! (Olyutil.isNullStr(dateErr))) {
 	out.println("<h5>(Error: -37 -- ID=" +  dateErr   + " -- The Commencement Date could not be found for this ID </h5><BR>");
+}
+
+if ( ! (Olyutil.isNullStr(dateErr2))) {
+	out.println("<h5>(Error: -35 -- " +  dateErr2   + "</h5><BR>");
 }
 
 if (errMap != null ) {

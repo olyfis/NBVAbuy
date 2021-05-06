@@ -168,7 +168,7 @@ public class GetdateParam extends HttpServlet {
 			
 			//System.out.println("*** NewEffectiveDate=" + commDate + "-- NewEffDate="   + newEffDate  +  "--D+30="   + datePlus30  + "--");
 			System.out.println("*** NewEffectiveDate=" + commDate + "-- NewEffDate="   + newEffDate  +  "--");
-		
+			request.getSession().setAttribute("commDateOrig", newEffDate);
 		request.getSession().setAttribute("commDate", commDate);
 		//request.getSession().setAttribute("newEffDate", newEffDate);
 		
