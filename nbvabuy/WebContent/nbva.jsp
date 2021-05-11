@@ -209,7 +209,7 @@ function ajaxFunction(){
 	   <td> 
 	  --> 
 	 <CENTER> 
-    <INPUT type="submit" value="Submit" class="idSubmit" name="submitID" id="submitID">  
+    <INPUT type="submit" value="Get Effective Date" class="idSubmit" name="submitID" id="submitID">  
      <input type="reset" value="Clear"/>
      </CENTER>
      </td>  

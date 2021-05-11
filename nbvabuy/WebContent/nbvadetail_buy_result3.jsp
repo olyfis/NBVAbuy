@@ -267,11 +267,6 @@ public void  buildCellsTotals( JspWriter out, ContractData contract, String form
 	String taxesPaid = Olyutil.decimalfmt(taxesPaid_t, "$###,##0.00");  
 	//System.out.println("***%%%*** TaxRate=" +  contract.getTotalTaxRate() + "--");
 	
-	out.println("<tr>");
-	out.println("<th class=\" " + style + "  \" >Contract Tax Rate</th>");
-	//out.println( "<td  width=\"70%\"  >" + contract.getTotalTaxRate() + "</td></tr>");
-	 out.println( "<td  width=\"70%\"  >" + taxRate + "</td></tr>");
-	
 	out.println("<th class=\" " + style + "  \" >Taxed Contract Buyout</th>");
 	//out.println( "<td class=\"a\">" + contract.getContractID() + "</td></tr>");
 	//out.println( "<td class=\"a\">" + sumTotal_df + "</td></tr>");
@@ -286,31 +281,10 @@ public void  buildCellsTotals( JspWriter out, ContractData contract, String form
 	out.println("<th class=\" " + style + "  \" >Taxes</th>");
 	out.println( "<td class=\"a\">" + taxesPaid + "</td></tr>");
 	
-	
-	 
-	out.println("<tr>"); 
-	out.println("<th class=\" " + style + "  \" >City Tax Total</th>");
-	out.println( "<td class=\"a\">" + contract.getCityTaxTotal() + "</td></tr>");
-	 
-	out.println("<tr>"); 
-	out.println("<th class=\" " + style + "  \" >State Tax Total</th>");
-	out.println( "<td class=\"a\">" + contract.getStateTaxTotal() + "</td></tr>");
-	
-	out.println("<tr>"); 
-	out.println("<th class=\" " + style + "  \" >County Tax Total</th>");
-	out.println( "<td class=\"a\">" + contract.getCntyTaxTotal() + "</td></tr>");
-	
-	out.println("<tr>"); 
-	out.println("<th class=\" " + style + "  \" >TransCounty Tax Total</th>");
-	out.println( "<td class=\"a\">" + contract.getTransCntyTaxTotal() + "</td></tr>");
-	
-	
-	
-	
-	
-	 
-	 
-	 
+	out.println("<tr>");
+	out.println("<th class=\" " + style + "  \" >Contract Tax Rate</th>");
+	 //out.println( "<td  width=\"70%\"  >" + contract.getTotalTaxRate() + "</td></tr>");
+	 out.println( "<td  width=\"70%\"  >" + taxRate + "</td></tr>");
 	
 	out.println( "  </td></tr>");
 

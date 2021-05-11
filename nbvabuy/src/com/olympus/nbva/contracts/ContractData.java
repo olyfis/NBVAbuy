@@ -62,6 +62,13 @@ package com.olympus.nbva.contracts;
 	private double buyOutWithTax; //i=53
 	private double buyOutInvoiceTotal; //i=53
 	
+	private double paymentWtax;
+	
+	private double cityTaxTotal;
+	private double stateTaxTotal;
+	private double cntyTaxTotal;
+	private double transCntyTaxTotal;
+	
 	/****************************************************************************************************************************************************/
 
 	
@@ -70,6 +77,86 @@ package com.olympus.nbva.contracts;
 	
 	public double getRemainRentRec() {
 		return remainRentRec;
+	}
+
+
+
+
+
+	public double getCityTaxTotal() {
+		return cityTaxTotal;
+	}
+
+
+
+
+
+	public void setCityTaxTotal(double cityTaxTotal) {
+		this.cityTaxTotal = cityTaxTotal;
+	}
+
+
+
+
+
+	public double getStateTaxTotal() {
+		return stateTaxTotal;
+	}
+
+
+
+
+
+	public void setStateTaxTotal(double stateTaxTotal) {
+		this.stateTaxTotal = stateTaxTotal;
+	}
+
+
+
+
+
+	public double getCntyTaxTotal() {
+		return cntyTaxTotal;
+	}
+
+
+
+
+
+	public void setCntyTaxTotal(double cntyTaxTotal) {
+		this.cntyTaxTotal = cntyTaxTotal;
+	}
+
+
+
+
+
+	public double getTransCntyTaxTotal() {
+		return transCntyTaxTotal;
+	}
+
+
+
+
+
+	public void setTransCntyTaxTotal(double transCntyTaxTotal) {
+		this.transCntyTaxTotal = transCntyTaxTotal;
+	}
+
+
+
+
+
+	public double getPaymentWtax() {
+		return paymentWtax;
+	}
+
+
+
+
+
+	public void setPaymentWtax(double paymentWtax) {
+		this.paymentWtax = paymentWtax;
 	}
 
 

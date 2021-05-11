@@ -12,9 +12,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
@@ -37,8 +39,10 @@ public class GetdateParam extends HttpServlet {
 	/****************************************************************************************************************************************************/
 
 	
-	public ArrayList<String> getDbData(String id, String sqlQueryFile) throws IOException {
+	public ArrayList<String> getDbData(String id, String sqlQueryFile, int paramNum, String dueDate) throws IOException {
 		String propFile = "C:\\Java_Dev\\props\\unidata.prop";  
+		
+		
 		 Statement stmt = null;
 		  Connection con = null;
 		  ResultSet res  = null;
@@ -76,6 +80,12 @@ public class GetdateParam extends HttpServlet {
 				//System.out.println("Connected to the database");
 				statement = con.prepareStatement(query);
 				//System.out.println("***^^^*** contractID=" + contractID);
+				if (paramNum > 1) {
+					statement.setString(1, id);
+					statement.setString(2, dueDate);
+				} else {
+					statement.setString(1, id);
+				}
 				statement.setString(1, id);
 				sep = ";";	 
 				res = Olyutil.getResultSetPS(statement);		 	 
@@ -133,15 +143,24 @@ public class GetdateParam extends HttpServlet {
 		String dispatchJSP = "/nbvaprocess.jsp";
 		HttpSession session = request.getSession(true);
 		ArrayList<String> dateArr = new ArrayList<String>();
+		ArrayList<String> invoiceDateArr = new ArrayList<String>();
 		String sqlFile = "C:\\Java_Dev\\props\\sql\\NBVAbuy\\NBVA_assetBuy_getCommDate_V2.sql";
-	 
+		String sqlFileDueDate = "C:\\Java_Dev\\props\\sql\\NBVAbuy\\getInvoiceDueDate_V1.sql";
+		
+		Date cd = Olyutil.getCurrentDate();
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd"); 
+		String currDate = formatter.format(cd);
 		
 		// String s1 = (String) session.getAttribute("JB");
 		// String dispCoveVals = request.getParameter("dispCodeArr_0");
 		String id = request.getParameter("id");
 		
 		//System.out.println("**!!** ID=" + id + "--");
-		dateArr = getDbData(id.trim(), sqlFile);
+		dateArr = getDbData(id.trim(), sqlFile, 1, "");
+		
+		invoiceDateArr = getDbData(id.trim(), sqlFileDueDate, 2, currDate);
+		Olyutil.printStrArray(invoiceDateArr);
+		
 		if(dateArr.size() > 0) {
 			//Olyutil.printStrArray(dateArr);
 			String[] strSplitArr = Olyutil.splitStr(dateArr.get(0), ";");
@@ -167,7 +186,7 @@ public class GetdateParam extends HttpServlet {
 			//String datePlus30 = dateShift(newEffDate, "yyyy-MM-dd","yyyy-MM-dd", 30);
 			
 			//System.out.println("*** NewEffectiveDate=" + commDate + "-- NewEffDate="   + newEffDate  +  "--D+30="   + datePlus30  + "--");
-			System.out.println("*** NewEffectiveDate=" + commDate + "-- NewEffDate="   + newEffDate  +  "--");
+			//System.out.println("*** NewEffectiveDate=" + commDate + "-- NewEffDate="   + newEffDate  +  "--");
 			request.getSession().setAttribute("commDateOrig", newEffDate);
 		request.getSession().setAttribute("commDate", commDate);
 		//request.getSession().setAttribute("newEffDate", newEffDate);

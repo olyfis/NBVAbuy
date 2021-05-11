@@ -885,10 +885,17 @@ public class CodeExcel extends HttpServlet {
 		  
 			
 			/*************************************************************************************************************/
+			double invoicePayment = contractData.getPaymentWtax();
+			System.out.println("***invPymt=" + invoicePayment + "--");
+			
+			
+			
 			
 			/***************************************************************************************************************/
+			
+			/*
 			for (Map.Entry<String, Double> entry : invoiceTotalsMap.entrySet()) {
-				//System.out.println("*** Key:" + entry.getKey() + " --> Value:" + entry.getValue() + "--");
+				System.out.println("*** Key:" + entry.getKey() + " --> Value:" + entry.getValue() + "--");
 				
 				if (entry.getKey().equals("contractTotal")) {
 					contractTotal = entry.getValue();
@@ -898,7 +905,7 @@ public class CodeExcel extends HttpServlet {
 				}
 				if (assetMap.containsKey(entry.getKey())) {
 					assetDate = assetMap.get(entry.getKey());
-					//System.out.println("*** assetDate=" + assetDate   + "--");
+					System.out.println("*** assetDate=" + assetDate   + "--");
 				}
 				
 				row = sheet1.getRow(k);
@@ -923,6 +930,9 @@ public class CodeExcel extends HttpServlet {
 				
 				
 			} // End For process hash map
+			
+			
+			*/
 			
 			/*   hold off on this section for now 2021-05-04 
 			if (taxedAmt_t > 0.00) {
