@@ -272,8 +272,8 @@ public class NbvaBuyout extends HttpServlet {
 	}
 
 	/****************************************************************************************************************************************************/
-	public static ContractData loadContractObj(String[] strSplitArr, String effectiveDate) {
-	 
+	public static ContractData loadContractObj(String[] strSplitArr, String effectiveDate, String invNum, String invDate) {
+		double transCityTaxRate = 0.00;
 		double cityTaxRate = 0.00;
 		double stateTaxRate = 0.00;
 		double cntyTaxRate = 0.00;
@@ -282,6 +282,7 @@ public class NbvaBuyout extends HttpServlet {
 		double stateTaxTotal = 0.00;
 		double cntyTaxTotal = 0.00;
 		double transCntyTaxTotal = 0.00;
+		double transCityTaxTotal = 0.00;
 		double equipCost = 0.00;
 		
 		ContractData contract = new ContractData();
@@ -301,7 +302,7 @@ public class NbvaBuyout extends HttpServlet {
 		contract.setInvoiceCode(strSplitArr[25]); 
 		contract.setPurOption(strSplitArr[26]); 
 		contract.setEffectiveDate(effectiveDate);	 
-		contract.setFinalInvDueDate(strSplitArr[4]);	
+		contract.setFinalInvDueDate(invDate);	// need to find correct value
 		contract.setCustomerAddr1(strSplitArr[41]); 
 		contract.setCustomerAddr2(strSplitArr[42]); 
 		contract.setCustomerAddr3(strSplitArr[43]); 
@@ -324,23 +325,25 @@ public class NbvaBuyout extends HttpServlet {
 		contract.setRemainRentRec(Olyutil.strToDouble(strSplitArr[47]));
 		// added 2021-01-29
 		cityTaxRate = Olyutil.strToDouble(strSplitArr[48]);
-		
+		contract.setCityTaxRate(cityTaxRate);
 	
 		cntyTaxRate = Olyutil.strToDouble(strSplitArr[49]);
 		contract.setCntyTaxRate(cntyTaxRate);
 		stateTaxRate = Olyutil.strToDouble(strSplitArr[50]);
 		
 		transCntyTaxRate = Olyutil.strToDouble(strSplitArr[51]);
+		transCityTaxRate = Olyutil.strToDouble(strSplitArr[52]);
+		
 		
 		contract.setTransCntyTaxRate(transCntyTaxRate);
-		
+		contract.setTransCityTaxRate(transCityTaxRate);
 		
 		
 		cityTaxTotal = roundTax(equipCost, cityTaxRate);
 		stateTaxTotal = roundTax(equipCost, stateTaxRate);
 		transCntyTaxTotal = roundTax(equipCost, transCntyTaxRate);
 		cntyTaxTotal = roundTax(equipCost, cntyTaxRate);
-		
+		transCityTaxTotal = roundTax(equipCost, transCityTaxRate);
 		
 		contract.setStateTaxRate(stateTaxRate);
 		
@@ -348,8 +351,8 @@ public class NbvaBuyout extends HttpServlet {
 		contract.setStateTaxTotal(stateTaxTotal);
 		contract.setCntyTaxTotal(cntyTaxTotal);
 		contract.setTransCntyTaxTotal(transCntyTaxTotal);
-		
-		
+		contract.setTransCityTaxTotal(transCityTaxTotal);
+		//System.out.println("***^ TCR=" + transCityTaxRate + "-- TCT=" +  transCityTaxTotal + "--");
 		//cntyTaxTotal = equipCost * ((cntyTaxRate / 100));
 		
 		//cityTaxTotal = equipCost * ((cityTaxRate / 100) );
@@ -357,10 +360,10 @@ public class NbvaBuyout extends HttpServlet {
 		
 		//transCntyTaxTotal = equipCost * ((transCntyTaxRate / 100));
 		
-		double totalTaxRate = Olyutil.strToDouble(strSplitArr[48]) + Olyutil.strToDouble(strSplitArr[49]) + Olyutil.strToDouble(strSplitArr[50]) + Olyutil.strToDouble(strSplitArr[51]);
+		double totalTaxRate = Olyutil.strToDouble(strSplitArr[48]) + Olyutil.strToDouble(strSplitArr[49]) + Olyutil.strToDouble(strSplitArr[50]) + Olyutil.strToDouble(strSplitArr[51] + Olyutil.strToDouble(strSplitArr[52]));
 		
 		contract.setTotalTaxRate(totalTaxRate);
-		double invoicePayment_t = cityTaxTotal +  stateTaxTotal    +  cntyTaxTotal   + transCntyTaxTotal  + equipCost ;
+		double invoicePayment_t = cityTaxTotal +  stateTaxTotal    +  cntyTaxTotal   + transCntyTaxTotal  + transCityTaxTotal + equipCost ;
 		
 		
 		
@@ -374,7 +377,8 @@ public class NbvaBuyout extends HttpServlet {
 		//System.out.println("***^^^ CityTT=" + cityTaxTotal  + "-- StateTT=" + stateTaxTotal  + "-- cntyTT=" + cntyTaxTotal +  "-- transCntyTT=" + transCntyTaxTotal + "--");
 		//System.out.println("***^^^ContractTaxRate=" +  totalTaxRate + "-- EquipPayment=" + equipCost + "--PaymentWtax="   + invoicePayment + "--" );
 		contract.setPaymentWtax(invoicePayment);
-		
+		contract.setInvoiceDueDate(invDate);
+		contract.setInvoiceNum(invNum);
 		// Done
 		
 		 //System.out.println("*** ContractData: 27" + strSplitArr[27] );
@@ -383,7 +387,7 @@ public class NbvaBuyout extends HttpServlet {
 		return(contract);
 	}
 	/****************************************************************************************************************************************************/
-	public static  List<Pair<ContractData, List<AssetData> >> parseData(ArrayList<String> strArr, int sz, String effDate, HashMap<String, String> codeMap  ) {
+	public static  List<Pair<ContractData, List<AssetData> >> parseData(ArrayList<String> strArr, int sz, String effDate, HashMap<String, String> codeMap, String invNum, String invDate  ) {
 		String[] strSplitArr = null;
 		ContractData contract = null;
 		AssetData asset = null;
@@ -405,7 +409,7 @@ public class NbvaBuyout extends HttpServlet {
 			if (i == 0) { // get Contract data
 				
 				//System.out.println("*********** i=" + i + "-- Line=" + strArr.get(i) + "--"); 
-				contract = loadContractObj(strSplitArr, effDate);
+				contract = loadContractObj(strSplitArr, effDate, invNum, invDate);
 				
 					asset = loadAssetObj(strSplitArr, codeMap);
 				 
@@ -1165,7 +1169,9 @@ public class NbvaBuyout extends HttpServlet {
 		
 	/**
 	 * @throws ParseException **************************************************************************************************************************************************/
-		public static HashMap<String, Double> getInvoiceTotals(String id, ArrayList<String> strArr, String sep) throws ParseException {
+		
+	/* process data from dailyAging file */
+	public static HashMap<String, Double> getInvoiceTotals(String id, ArrayList<String> strArr, String sep) throws ParseException {
 			HashMap<String, Double> invoiceMap = new HashMap<String, Double>();
 			String invoiceNum= "";
 			double sum = 0.0;
@@ -1208,8 +1214,8 @@ public class NbvaBuyout extends HttpServlet {
 				
 				*/
 				
-				if (id.equals(contractID) && cDate.compareTo(dDate) <= 0) {
-					System.out.println("*** ID=" + id + "-- ContractID=" + contractID +"--DueDate--" + dueDate + "--InvNum=" + invNum + "--");
+				if (id.equals(contractID) && cDate.compareTo(dDate) <= 0) { // compare current date with invoice due date
+					//System.out.println("*** ID=" + id + "-- ContractID=" + contractID +"--DueDate--" + dueDate + "--InvNum=" + invNum + "--");
 
 					if (invoiceMap.containsKey(invoiceNum)) {
 						sum += invoiceMap.get(invoiceNum) + val;
@@ -1344,7 +1350,8 @@ public class NbvaBuyout extends HttpServlet {
 		Handler fileHandler =  OlyLog.setAppendLog(directoryName, logFileName, LOGGER );
 		Date logDate = Olyutil.getCurrentDate();
 		String dateFmt = Olyutil.formatDate("yyyy-MM-dd hh:mm:ss.SSS");
- 
+		String invDueDate = "";
+		String invNumber = "";
 		
 		DecimalFormat format = new DecimalFormat("0.00");
 		
@@ -1405,7 +1412,18 @@ public class NbvaBuyout extends HttpServlet {
 				 effDate = paramMap.get("eDate");
 				 idVal = paramMap.get("id");
 				 String commDateOrig = paramMap.get("commDateOrig");
-				 long diffDays = diff2Dates(  commDateOrig, effDate);
+				 invDueDate = paramMap.get("invDueDate");
+				 invNumber = paramMap.get("invNumber");
+				 
+				 
+				 
+				 
+				 //long diffDays = diff2Dates(  commDateOrig, effDate); // original 301 day check
+				 
+				 
+				 long diffDays = diff2Dates(  invDueDate, effDate);
+				 System.out.println("!!**^^** invDueDate=" + invDueDate + "--effDate=" + effDate + "--commDateOrig=" + commDateOrig + "--DiffDays=" + diffDays + "--" );
+
 				// System.out.println("!!**^^** eDate=" + effDate + "--***** commDateOrig="  +  commDateOrig   + "--Diffdays=" + diffDays + "--");
 				 if (diffDays > 31) {
 					 //System.out.println("***** Error: Past 30 day window for buyout."); 
@@ -1486,7 +1504,7 @@ public class NbvaBuyout extends HttpServlet {
 				kitArr = GetKitData.getKitData(kitFileName);
 				// Olyutil.printStrArray(kitArr);
 			
-				rtnPair = parseData(strArr, arrSZ, effDate, codeMapRtn );
+				rtnPair = parseData(strArr, arrSZ, effDate, codeMapRtn, invNumber, invDueDate );
 				contractData = rtnPair.get(0).getLeft();
 				rtnArrSZ = rtnPair.get(0).getRight().size(); 
 				 //System.out.println("*** RTN Arr SZ=" + rtnArrSZ + "--");
@@ -1504,7 +1522,8 @@ public class NbvaBuyout extends HttpServlet {
 				// sumTotal = getContractTotals(idVal, ageArr, ";");
 				 
 				 try {
-					invoiceTotalsMap = getInvoiceTotals(idVal, ageArr, ";");
+					invoiceTotalsMap = getInvoiceTotals(idVal, ageArr, ";"); // ageArr holds data from dailyAging file
+					//displayDataMapSD(invoiceTotalsMap);
 				} catch (ParseException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -1512,7 +1531,7 @@ public class NbvaBuyout extends HttpServlet {
 				 
 				 sumTotal = invoiceTotalsMap.get("contractTotal");
 				 request.getSession().setAttribute("invoiceTotalsMap", invoiceTotalsMap);
-				 //displayDataMapSD(invoiceTotalsMap);
+				
 				// System.out.println("***^^^^***** Get Contract Totals:" + sumTotal + "--");
 				 errIDArrayRtn = doCheckDates(rtnPair, effDate, mthSpan);
 				//System.out.println("----- dateErrors=" + errIDArrayRtn.size());

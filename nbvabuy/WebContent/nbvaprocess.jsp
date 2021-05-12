@@ -23,6 +23,8 @@
 	String commDate =  (String) session.getAttribute("commDate");
 	String newEffDate  =  (String) session.getAttribute("newEffDate");
 	String commDate_t =  (String) session.getAttribute("commDateOrig");
+	String invDueDate =  (String) session.getAttribute("invDueDate");
+	String invNumber =  (String) session.getAttribute("invNumber");
 	//System.out.println("** CurrDate=" + currDate);
 	 /*
  
@@ -172,7 +174,8 @@ function ajaxFunction(){
       <CENTER>  <input name="id" type="text"  value=<%=id%> /> </CENTER>
      <CENTER>  <input name="commDateOrig" type="hidden"  value=<%=commDate_t%> /> </CENTER>
       <CENTER>  <input name="newEffDate" type="hidden"  value=<%=newEffDate%> /> </CENTER>
-     
+     <CENTER>  <input name="invDueDate" type="hidden"  value=<%=invDueDate%> /> </CENTER>
+     <CENTER>  <input name="invNumber" type="hidden"  value=<%=invNumber%> /> </CENTER>
   </td>
   </tr>
  <!--   

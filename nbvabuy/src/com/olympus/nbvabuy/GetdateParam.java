@@ -146,7 +146,8 @@ public class GetdateParam extends HttpServlet {
 		ArrayList<String> invoiceDateArr = new ArrayList<String>();
 		String sqlFile = "C:\\Java_Dev\\props\\sql\\NBVAbuy\\NBVA_assetBuy_getCommDate_V2.sql";
 		String sqlFileDueDate = "C:\\Java_Dev\\props\\sql\\NBVAbuy\\getInvoiceDueDate_V1.sql";
-		
+		String invDueDate = "TBD";
+		String invNumber = "TBD";
 		Date cd = Olyutil.getCurrentDate();
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd"); 
 		String currDate = formatter.format(cd);
@@ -159,7 +160,16 @@ public class GetdateParam extends HttpServlet {
 		dateArr = getDbData(id.trim(), sqlFile, 1, "");
 		
 		invoiceDateArr = getDbData(id.trim(), sqlFileDueDate, 2, currDate);
+		
+		
 		Olyutil.printStrArray(invoiceDateArr);
+		if(invoiceDateArr.size() > 0) {
+			String[] splitArr = Olyutil.splitStr(invoiceDateArr.get(0), ";");
+			invDueDate = splitArr[2];
+			invNumber = splitArr[1];
+		}
+		
+		
 		
 		if(dateArr.size() > 0) {
 			//Olyutil.printStrArray(dateArr);
@@ -191,8 +201,14 @@ public class GetdateParam extends HttpServlet {
 		request.getSession().setAttribute("commDate", commDate);
 		//request.getSession().setAttribute("newEffDate", newEffDate);
 		
-		request.getSession().setAttribute("newEffDate", commDate); // Fixed 2021-04-16 date bump 30 days
-			
+		//request.getSession().setAttribute("newEffDate", commDate); // Fixed 2021-04-16 date bump 30 days
+		
+		request.getSession().setAttribute("newEffDate", invDueDate);
+		
+		
+		request.getSession().setAttribute("invDueDate", invDueDate); //  	
+		request.getSession().setAttribute("invNumber", invNumber); //  
+
 		} else { // date not found for ID
 			dispatchJSP = "/nbvaerror.jsp";
 			request.getSession().setAttribute("dateErr", "dateErr");

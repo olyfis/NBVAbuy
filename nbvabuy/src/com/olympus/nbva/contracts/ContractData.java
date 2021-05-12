@@ -57,10 +57,12 @@ package com.olympus.nbva.contracts;
 	private double cntyTaxRate;  //i=49
 	private double stateTaxRate;  //i=50
 	private double transCntyTaxRate; //i=51
-	private double totalTaxRate; //i=52
+	private double transCityTaxRate; //i=52
 	
-	private double buyOutWithTax; //i=53
-	private double buyOutInvoiceTotal; //i=53
+	private double totalTaxRate; // 
+	
+	private double buyOutWithTax; // 
+	private double buyOutInvoiceTotal; // 
 	
 	private double paymentWtax;
 	
@@ -68,6 +70,10 @@ package com.olympus.nbva.contracts;
 	private double stateTaxTotal;
 	private double cntyTaxTotal;
 	private double transCntyTaxTotal;
+	private double transCityTaxTotal;
+	
+	private String invoiceDueDate;
+	private String invoiceNum;
 	
 	/****************************************************************************************************************************************************/
 
@@ -77,6 +83,70 @@ package com.olympus.nbva.contracts;
 	
 	public double getRemainRentRec() {
 		return remainRentRec;
+	}
+
+
+
+
+
+	public double getTransCityTaxTotal() {
+		return transCityTaxTotal;
+	}
+
+
+
+
+
+	public void setTransCityTaxTotal(double transCityTaxTotal) {
+		this.transCityTaxTotal = transCityTaxTotal;
+	}
+
+
+
+
+
+	public double getTransCityTaxRate() {
+		return transCityTaxRate;
+	}
+
+
+
+
+
+	public void setTransCityTaxRate(double transCityTaxRate) {
+		this.transCityTaxRate = transCityTaxRate;
+	}
+
+
+
+
+
+	public String getInvoiceDueDate() {
+		return invoiceDueDate;
+	}
+
+
+
+
+
+	public void setInvoiceDueDate(String invoiceDueDate) {
+		this.invoiceDueDate = invoiceDueDate;
+	}
+
+
+
+
+
+	public String getInvoiceNum() {
+		return invoiceNum;
+	}
+
+
+
+
+
+	public void setInvoiceNum(String invoiceNum) {
+		this.invoiceNum = invoiceNum;
 	}
 
 
