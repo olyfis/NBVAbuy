@@ -25,6 +25,13 @@
 	String commDate_t =  (String) session.getAttribute("commDateOrig");
 	String invDueDate =  (String) session.getAttribute("invDueDate");
 	String invNumber =  (String) session.getAttribute("invNumber");
+	HashMap<String, String> invDateMapDB =  (HashMap<String, String>) session.getAttribute("invDateMapDB");
+	
+	String effDatePlus30 =  (String) session.getAttribute("effDatePlus30");
+
+	
+
+	 
 	//System.out.println("** CurrDate=" + currDate);
 	 /*
  
@@ -176,6 +183,7 @@ function ajaxFunction(){
       <CENTER>  <input name="newEffDate" type="hidden"  value=<%=newEffDate%> /> </CENTER>
      <CENTER>  <input name="invDueDate" type="hidden"  value=<%=invDueDate%> /> </CENTER>
      <CENTER>  <input name="invNumber" type="hidden"  value=<%=invNumber%> /> </CENTER>
+     <CENTER>  <input name="effDatePlus30" type="hidden"  value=<%=effDatePlus30%> /> </CENTER>
   </td>
   </tr>
  <!--   
@@ -209,11 +217,17 @@ function ajaxFunction(){
   <!-- ********************************************************************************************************************************************************* -->
   
    <tr>
-  <td width="60" valign="bottom"> <b>Effective Date: ( <font color="red">Later than: <%=currDate%> </font>)</b> </td> 
+  <td width="60" valign="bottom"> <b>Effective Date: ( <font color="red">Later than: <%=newEffDate%> </font>)</b> </td> 
   <td width="20" valign="bottom"> 
    <center>
-   <% out.println("<input name=\"eDate\" id=\"date2\" type=\"text\" value=\" " +     newEffDate  + "  \"   onclick=\"pureJSCalendar.open('yyyy-MM-dd', 20, 30, 7, '2017-1-1', '2025-12-31', 'date2', 20)\"   />" );
-     %>
+   <% 
+   
+   // Orig
+  // out.println("<input name=\"eDate\" id=\"date2\" type=\"text\" value=\" " +     newEffDate  + "  \"   onclick=\"pureJSCalendar.open('yyyy-MM-dd', 20, 30, 7, '2017-1-1', '2025-12-31', 'date2', 20)\"   />" );
+    // shift out 30 days
+   out.println("<input name=\"eDate\" id=\"date2\" type=\"text\" value=\" " +     effDatePlus30  + "  \"   onclick=\"pureJSCalendar.open('yyyy-MM-dd', 20, 30, 7, '2017-1-1', '2025-12-31', 'date2', 20)\"   />" );
+
+   %>
    </center>
   
    </td>

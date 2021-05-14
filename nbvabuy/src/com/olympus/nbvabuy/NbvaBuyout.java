@@ -154,7 +154,19 @@ public class NbvaBuyout extends HttpServlet {
 		return strArr;
 	}
 	/*****************************************************************************************************************************************************/
-
+	
+	// String nm2 = addMonthsToDate("2021-05-07", 1);
+	public static String addMonthsToDate(String origDate, int mths) {
+		String newDate = "";
+		LocalDate date   = LocalDate.parse(origDate); 
+		LocalDate returnvalue  = date.plusMonths(mths); 
+		
+		 //System.out.println("LocalDate after " + " adding months: " + returnvalue); 
+		 newDate = returnvalue.toString();
+		 //System.out.println("***** LocalDate after " + " adding months: " + newDate); 
+		
+		return(newDate);
+	}
 	/*****************************************************************************************************************************************************/
 	/*****************************************************************************************************************************************************/
 	/*****************************************************************************************************************************************************/
@@ -384,6 +396,11 @@ public class NbvaBuyout extends HttpServlet {
 		 //System.out.println("*** ContractData: 27" + strSplitArr[27] );
 		
 		//System.out.println("*** ContractData:" + strSplitArr.toString() );
+		String effDatePlus30 = addMonthsToDate(invDate, 1);
+		contract.setInvoiceDueDatePlus30(effDatePlus30);
+		
+		
+		
 		return(contract);
 	}
 	/****************************************************************************************************************************************************/
@@ -454,8 +471,9 @@ public class NbvaBuyout extends HttpServlet {
 	/****************************************************************************************************************************************************/
 	/****************************************************************************************************************************************************/
 	/****************************************************************************************************************************************************/
-	/****************************************************************************************************************************************************/
-	public static ArrayList<Integer> doCheckDates(List<Pair<ContractData, List<AssetData> >> rtnPair, String effDate, int mthSpan ) {
+	/**
+	 * @throws IOException **************************************************************************************************************************************************/
+	public static ArrayList<Integer> doCheckDates(List<Pair<ContractData, List<AssetData> >> rtnPair, String effDate, int mthSpan ) throws IOException {
 		ArrayList<Integer> errIDArray = new ArrayList<>();
 		boolean contractStat = false;
 		  boolean invoiceCodeStat = false;
@@ -467,6 +485,9 @@ public class NbvaBuyout extends HttpServlet {
 		String commDate = rtnPair.get(0).getLeft().getCommenceDate();
 		
 		String nextAgingDate = rtnPair.get(0).getLeft().getNextAgingDate();
+		String invDatePlus30 = rtnPair.get(0).getLeft().getInvoiceDueDatePlus30();
+		String invDueDate = rtnPair.get(0).getLeft().getInvoiceDueDate();
+		
 		
 		
 		String  termPlusSpan = DateUtil.addMonthsToDate(termDate, mthSpan);
@@ -477,10 +498,17 @@ public class NbvaBuyout extends HttpServlet {
 		rtnPair.get(0).getLeft().setMonthsDiff(mthDiff);
 		
 		
+		if (Olyutil.dateCompare(invDueDate, effDate, "yyyy-MM-dd") < 0  ) {
+			errIDArray.add(-40);
+			return(errIDArray);
+		}
+		
 		if (effDate.equals("Click for Calendar") || Olyutil.isNullStr(effDate)   ) {
 			errIDArray.add(rtnDate);
 			return(errIDArray);
 		}
+		
+		
 		try {
 			SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd");
 			//Date d1 = f.parse(effDate);
@@ -1171,8 +1199,8 @@ public class NbvaBuyout extends HttpServlet {
 	 * @throws ParseException **************************************************************************************************************************************************/
 		
 	/* process data from dailyAging file */
-	public static HashMap<String, Double> getInvoiceTotals(String id, ArrayList<String> strArr, String sep) throws ParseException {
-			HashMap<String, Double> invoiceMap = new HashMap<String, Double>();
+	public static HashMap<String, String> getInvoiceDates(String id, ArrayList<String> strArr, String sep) throws ParseException {
+			HashMap<String, String> invoiceMap = new HashMap<String, String>();
 			String invoiceNum= "";
 			double sum = 0.0;
 			double invTotal = 0.0;
@@ -1202,11 +1230,12 @@ public class NbvaBuyout extends HttpServlet {
 				double val = 0.0;
 				val = Olyutil.strToDouble(items[4]);	
 				invoiceNum = items[6];
-			/*	
+				/*
 				if (i++ < 3) {
 					System.out.println("*** ID=" + id + "-- ContractID=" + contractID +"--DueDate--" + dueDate + "--");
 
 				}
+				
 				if(cDate.compareTo(dDate) <= 0) {
 			        System.out.println("**** Date Valid: " + dueDate + "--");
 			    } //else
@@ -1216,23 +1245,16 @@ public class NbvaBuyout extends HttpServlet {
 				
 				if (id.equals(contractID) && cDate.compareTo(dDate) <= 0) { // compare current date with invoice due date
 					//System.out.println("*** ID=" + id + "-- ContractID=" + contractID +"--DueDate--" + dueDate + "--InvNum=" + invNum + "--");
-
-					if (invoiceMap.containsKey(invoiceNum)) {
-						sum += invoiceMap.get(invoiceNum) + val;
-						invoiceMap.put(invoiceNum, sum);
-						
-					} else {
-						invoiceMap.put(invoiceNum, val);
-						 
-					}
-					
-					invTotal += val;
-					// System.out.println("*** Match:" + id + " -- Value:" + val  + "-- IT=" + invTotal + "--");
+					SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
+					String dueDate_t = fmt.format(dDate);
+ 					invoiceMap.put(invoiceNum, dueDate_t);
+				
+					//System.out.println("*** Match:" + id + " -- Value:" + val  + "-- dueDate=" + dueDate_t + "--SZ=" + invoiceMap.size() + "--");
 					 
 				}  
 				sum = 0.00;
 			}	
-			invoiceMap.put("contractTotal", invTotal);
+			 
 			
 			return(invoiceMap);
 		}
@@ -1313,7 +1335,9 @@ public class NbvaBuyout extends HttpServlet {
 		HashMap<String, ArrayList<Integer>> sqlErrMap = new HashMap<String, ArrayList<Integer>>();
 		
 		 
-		HashMap<String, Double> invoiceTotalsMap = new HashMap<String, Double>();
+		//HashMap<String, Double> invoiceTotalsMap = new HashMap<String, Double>();
+		HashMap<String, String> invoiceDatesMap = new HashMap<String, String>();
+		
 		String newDate2 =  (String) request.getAttribute("newEffDate");
 		
 		sqlErrMap.clear();
@@ -1420,14 +1444,14 @@ public class NbvaBuyout extends HttpServlet {
 				 
 				 //long diffDays = diff2Dates(  commDateOrig, effDate); // original 301 day check
 				 
-				 
+				 // Calc DiffDays
 				 long diffDays = diff2Dates(  invDueDate, effDate);
-				 System.out.println("!!**^^** invDueDate=" + invDueDate + "--effDate=" + effDate + "--commDateOrig=" + commDateOrig + "--DiffDays=" + diffDays + "--" );
+				 //System.out.println("!!**^^** invDueDate=" + invDueDate + "--effDate=" + effDate + "--commDateOrig=" + commDateOrig + "--DiffDays=" + diffDays + "--" );
 
 				// System.out.println("!!**^^** eDate=" + effDate + "--***** commDateOrig="  +  commDateOrig   + "--Diffdays=" + diffDays + "--");
 				 if (diffDays > 31) {
 					 //System.out.println("***** Error: Past 30 day window for buyout."); 
-					 request.getSession().setAttribute("dateErr2", "Error: Past 30 day window for buyout. -- Set date to: " + commDateOrig + "  and try again.");
+					 request.getSession().setAttribute("dateErr2", "Error: Past 30 day window for buyout. -- Set date to: " + invDueDate + "  and try again.");
 					 request.getRequestDispatcher(dispatchJSP_Error).forward(request, response);
 					 return;
 				 }
@@ -1522,15 +1546,15 @@ public class NbvaBuyout extends HttpServlet {
 				// sumTotal = getContractTotals(idVal, ageArr, ";");
 				 
 				 try {
-					invoiceTotalsMap = getInvoiceTotals(idVal, ageArr, ";"); // ageArr holds data from dailyAging file
+					invoiceDatesMap = getInvoiceDates(idVal, ageArr, ";"); // ageArr holds data from dailyAging file
 					//displayDataMapSD(invoiceTotalsMap);
 				} catch (ParseException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				 
-				 sumTotal = invoiceTotalsMap.get("contractTotal");
-				 request.getSession().setAttribute("invoiceTotalsMap", invoiceTotalsMap);
+				 
+				 request.getSession().setAttribute("invoiceDatesMap", invoiceDatesMap);
 				
 				// System.out.println("***^^^^***** Get Contract Totals:" + sumTotal + "--");
 				 errIDArrayRtn = doCheckDates(rtnPair, effDate, mthSpan);

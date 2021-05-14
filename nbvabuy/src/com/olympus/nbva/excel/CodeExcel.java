@@ -1,6 +1,7 @@
 package com.olympus.nbva.excel;
  
 import java.io.File;
+import java.util.TreeMap;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -11,8 +12,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -719,7 +722,7 @@ public class CodeExcel extends HttpServlet {
 	/****************************************************************************************************************************************************/
 	
 	// Buyout Statement
-	public static void doInvoiceStatement(XSSFWorkbook workbook, String tab, List<Pair<ContractData, List<AssetData> >> rtnPair, String dateStamp, ArrayList<String> ageArr, HashMap<String, Double> invoiceTotalsMap ) throws IOException {
+	public static void doInvoiceStatement(XSSFWorkbook workbook, String tab, List<Pair<ContractData, List<AssetData> >> rtnPair, String dateStamp, ArrayList<String> ageArr, HashMap<String, String> invDateMapDB ) throws IOException {
 
 		String assetDate = "";
 		HashMap<String, String> assetMap = new HashMap<String, String>();
@@ -782,9 +785,10 @@ public class CodeExcel extends HttpServlet {
 			String invoiceNum = agreementNum + "-" + dateToday;
 			//System.out.println("** invNum=" + invoiceNum + "--");		 
 			buyOutAmt = Olyutil.decimalfmt(contractData.getBuyOutWithTax(), "$###,##0.00");
+			//displayDataMapStr( invDateMapDB, "From database");
 			
-			
-			
+			//displayDataMapStr( assetMap, "From dailyAge file");
+
 			//String buyOutAmt_noTax = Olyutil.decimalfmt(contractData.getBuyOut(), "$###,##0.00");
 			
 			double buyOutAmt_noTax =  contractData.getBuyOut() ;
@@ -884,17 +888,61 @@ public class CodeExcel extends HttpServlet {
 			//displayDataMapStr(assetMap);
 		  
 			
-			/*************************************************************************************************************/
 			double invoicePayment = contractData.getPaymentWtax();
-			System.out.println("***invPymt=" + invoicePayment + "--");
-			
-			
-			
+			//
+			//System.out.println("***invPymt=" + invoicePayment + "--");
+			/*************************************************************************************************************/
+			// display invoice numbers and totals
+			String key = "";
+			String val = "";
+			if (! assetMap.containsValue(effDate)) {
+           	 //System.out.println("**** effDate not found:" + effDate + "--");
+           	 assetMap.put("TBD", effDate);
+            }
+			Map<String, String> mapSort = new TreeMap<String, String>(assetMap); 
+			Set set2 = mapSort.entrySet();
+	         Iterator iterator2 = set2.iterator();
+	         while(iterator2.hasNext()) {
+	              Map.Entry mp = (Map.Entry)iterator2.next();
+	              key = mp.getKey().toString();
+	              val = mp.getValue().toString();
+	              //System.out.print("**** mapSorted:" + mp.getKey() + ": ");
+	              //System.out.println(mp.getValue() + "--");
+	              
+	              //System.out.println("**** mapSorted=" + key + "-- Value=" + val + "--");
+
+	              row = sheet1.getRow(k);
+					cell = row.getCell(1);
+					cell.setCellValue(key);
+					//String dFmt4 = Olyutil.formatDate(effDateMinus1.toString(), "yyyy-MM-dd", "M/d/yyyy");
+					//String dFmt4 = Olyutil.formatDate(assetDate, "yyyy-MM-dd", "M/d/yyyy");
+					String dFmt4 = Olyutil.formatDate(val, "yyyy-MM-dd", "M/d/yyyy");
+					cell = row.getCell(2);
+					cell.setCellValue( dFmt4);
+					
+					cell = row.getCell(3);
+					cell.setCellValue( "Usage:");
+					
+					 cell = row.getCell(4);
+					 cell.setCellValue( Olyutil.decimalfmt(invoicePayment, "$###,##0.00"));	
+					 cell.setCellValue(invoicePayment);
+					 //System.out.println("**B** IVT=" + invoiceTot + "-- IP=" + invoicePayment + "--");
+					invoiceTot += invoicePayment;
+					 //System.out.println("**A** IVT=" + invoiceTot + "-- IP=" + invoicePayment + "--");
+
+					//System.out.println("*** Setting (4) Key:" + entry.getKey() + " --> Value:" + entry.getValue() + "-- k=" + k +"-- IT=" + invoiceTot + "--");
+					k++;		   
+	              
+	         }
+			// check for  TBD payments -- no invoice in dailyAge file
+            // System.out.println("**** Latest Invoice Date=" + contractData.getFinalInvDueDate() + "-- effDate=" + effDate + "--");
+             
+	         
 			
 			/***************************************************************************************************************/
 			
 			/*
-			for (Map.Entry<String, Double> entry : invoiceTotalsMap.entrySet()) {
+			for (Map.Entry<String, Double> entry : invoiceDatesMap.entrySet()) {
 				System.out.println("*** Key:" + entry.getKey() + " --> Value:" + entry.getValue() + "--");
 				
 				if (entry.getKey().equals("contractTotal")) {
@@ -966,7 +1014,7 @@ public class CodeExcel extends HttpServlet {
 			//double tot = Olyutil.strToDouble(buyOutAmt) + contractTotal;
 		    double tot = Olyutil.strToDouble(buyOutAmt) + invoiceTot;
 			//cell.setCellValue(Olyutil.decimalfmt((tot), "$###,##0.00"));
-			//System.out.println("*** Tot=" +  tot + "--");
+			 //System.out.println("*** Tot=" +  tot + "--BO=" + buyOutAmt + "-- IVT=" + invoiceTot + "--");
 			
 			
 			 cell.setCellValue(tot); // remove taxes
@@ -981,10 +1029,10 @@ public class CodeExcel extends HttpServlet {
 
 	}
 	/****************************************************************************************************************************************************************/
-	public static void displayDataMapStr(Map<String, String> map) {
+	public static void displayDataMapStr(Map<String, String> map, String tag) {
 
 		for (Map.Entry<String, String> entry : map.entrySet()) {
-			System.out.println("*** Key:" + entry.getKey() + " --> Value:" + entry.getValue() + "--");
+			System.out.println("*** "  +  tag + "-- Key:" + entry.getKey() + " --> Value:" + entry.getValue() + "--");
 		}
 		System.out.println("*****************************************************************************************************");
 
@@ -1000,7 +1048,9 @@ public class CodeExcel extends HttpServlet {
 		System.out.println("*****************************************************************************************************");
 
 	}
-		
+	/****************************************************************************************************************************************************/
+	
+
 	
 	/****************************************************************************************************************************************************/
 
@@ -1021,10 +1071,10 @@ public class CodeExcel extends HttpServlet {
 			XSSFWorkbook workbook = null;
 			XSSFSheet sheet = null;
 			
-			HashMap<String, Double> invoiceTotalsMap = (HashMap<String, Double>) session.getAttribute("invoiceTotalsMap");
+			HashMap<String, String> invDateMapDB = (HashMap<String, String>) session.getAttribute("invDateMapDB");
 			
 			
-			//displayDataMapSD(invoiceTotalsMap);
+			//displayDataMapStr( invDateMapDB, "From database");
 		assetHeaderArr = Olyutil.readInputFile(headerFile);
 
 		String tab1 = "Buyout_Letter";
@@ -1045,7 +1095,7 @@ public class CodeExcel extends HttpServlet {
 
 		// XSSFSheet sheet2 = getWorkSheet(workbook, "Buyout_Invoice");
 		doBuyoutInvoice(workbook, "Buyout_Invoice", list, dateStamp);
-		doInvoiceStatement(workbook, "Buyout_Statement", list, dateStamp, ageArr, invoiceTotalsMap);
+		doInvoiceStatement(workbook, "Buyout_Statement", list, dateStamp, ageArr, invDateMapDB);
 		//System.out.println("** Call contractHeader");
 		// workbook = newWorkbook();
 		

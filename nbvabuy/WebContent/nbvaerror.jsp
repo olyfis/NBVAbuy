@@ -28,7 +28,7 @@
 	String idVal = (String) session.getAttribute("id");
 	String dateErr = (String) session.getAttribute("dateErr");
 	String dateErr2 = (String) session.getAttribute("dateErr2");
-	
+	String newEffDate = (String) session.getAttribute("invDueDate");
 	 //System.out.println("*** idErr=" + idErr + "-- errDate=" + errDate + "-- ID=" + idVal);
 	
 %>
@@ -215,7 +215,9 @@ if (errMap != null ) {
 					out.println("<h5>(Error:" + eMap.get(k) +  " -- ID=" +  idVal   + ") The Next Aging Date (" + naDate+ ") is less than the Effective Date (" + effDate + "). </h5><BR>");
 				}
 				
-				
+				if (eMap.get(k) == -40) {
+					out.println("<h5>(Error:" + eMap.get(k) +  " -- ID=" +  idVal   + ")  Date input cannot be less than the Effective Date (" + newEffDate + "). </h5><BR>");
+				}
 				 
 				
 			}

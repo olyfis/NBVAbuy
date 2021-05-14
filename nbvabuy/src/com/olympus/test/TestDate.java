@@ -14,7 +14,22 @@ import com.olympus.dateutil.DateUtil;
 import com.olympus.olyutil.*;
 
 public class TestDate {
+	/*********************************************************************************************************************************************/
+
 	
+	public static String addMonthsToDate(String origDate, int mths) {
+		String newDate = "";
+		LocalDate date   = LocalDate.parse(origDate); 
+		LocalDate returnvalue  = date.plusMonths(mths); 
+		
+		 System.out.println("LocalDate after "
+                 + " adding months: " + returnvalue); 
+		 newDate = returnvalue.toString();
+		 System.out.println("***** LocalDate after "
+                 + " adding months: " + newDate); 
+		
+		return(newDate);
+	}
 	
 /*********************************************************************************************************************************************/
 	
@@ -35,8 +50,14 @@ public class TestDate {
 		
 		System.out.println("*** NewEffectiveDate=" + newDate );
 		//System.out.println("*** Added 2 months:" + addMonths( commDate, 2));
- 
+		String d1 = "2021-01-31";
+		String nm = addMonthsToDate(d1, 1);
 		
+		String d2 = "2021-08-02";
+		String nm2 = addMonthsToDate(d2, 1);
+		
+		System.out.println("*** OrigDate=" + d1 + "-- NewDate="  + nm+  "--");
+		System.out.println("*** OrigDate=" + d2 + "-- NewDate="  + nm2+  "--");
 /*
 		
 		String date2 = dateShift("2020-10-20", "yyyy-MM-dd","MM-dd-yyyy", -2);

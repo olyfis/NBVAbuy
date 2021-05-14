@@ -73,6 +73,8 @@ package com.olympus.nbva.contracts;
 	private double transCityTaxTotal;
 	
 	private String invoiceDueDate;
+	private String invoiceDueDatePlus30;
+	
 	private String invoiceNum;
 	
 	/****************************************************************************************************************************************************/
@@ -83,6 +85,22 @@ package com.olympus.nbva.contracts;
 	
 	public double getRemainRentRec() {
 		return remainRentRec;
+	}
+
+
+
+
+
+	public String getInvoiceDueDatePlus30() {
+		return invoiceDueDatePlus30;
+	}
+
+
+
+
+
+	public void setInvoiceDueDatePlus30(String invoiceDueDatePlus30) {
+		this.invoiceDueDatePlus30 = invoiceDueDatePlus30;
 	}
 
 

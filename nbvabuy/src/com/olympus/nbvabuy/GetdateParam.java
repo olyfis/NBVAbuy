@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
@@ -42,20 +43,19 @@ public class GetdateParam extends HttpServlet {
 	public ArrayList<String> getDbData(String id, String sqlQueryFile, int paramNum, String dueDate) throws IOException {
 		String propFile = "C:\\Java_Dev\\props\\unidata.prop";  
 		
-		
-		 Statement stmt = null;
-		  Connection con = null;
-		  ResultSet res  = null;
-		 
-		  String s = null;
-		  PreparedStatement statement;
+		Statement stmt = null;
+		Connection con = null;
+		ResultSet res = null;
+
+		String s = null;
+		PreparedStatement statement;
 		String commDate = "";
 		FileInputStream fis = null;
 		FileReader fr = null;
-		 
+
 		String sep = "";
-    StringBuffer sb = new StringBuffer();
-    ArrayList<String> strArr = new ArrayList<String>();
+		StringBuffer sb = new StringBuffer();
+		ArrayList<String> strArr = new ArrayList<String>();
 		try {
 			fis = new FileInputStream(propFile);
 		} catch (FileNotFoundException e) {
@@ -63,23 +63,24 @@ public class GetdateParam extends HttpServlet {
 		}
 		Properties connectionProps = new Properties();
 		connectionProps.load(fis);
-		fr = new FileReader(new File(sqlQueryFile));	
-		// be sure to not have line starting with "--" or "/*" or any other non alphabetical character
+		fr = new FileReader(new File(sqlQueryFile));
+		// be sure to not have line starting with "--" or "/*" or any other non
+		// alphabetical character
 		BufferedReader br = new BufferedReader(fr);
-		while((s = br.readLine()) != null){
-		      sb.append(s);       
+		while ((s = br.readLine()) != null) {
+			sb.append(s);
 		}
 		br.close();
-		//displayProps(connectionProps);
+		// displayProps(connectionProps);
 		String query = new String();
-		query = sb.toString();	
-		//System.out.println( query);	 
+		query = sb.toString();
+		// System.out.println( query);
 		try {
 			con = Olyutil.getConnection(connectionProps);
 			if (con != null) {
-				//System.out.println("Connected to the database");
+				// System.out.println("Connected to the database");
 				statement = con.prepareStatement(query);
-				//System.out.println("***^^^*** contractID=" + contractID);
+				// System.out.println("***^^^*** contractID=" + contractID);
 				if (paramNum > 1) {
 					statement.setString(1, id);
 					statement.setString(2, dueDate);
@@ -87,10 +88,10 @@ public class GetdateParam extends HttpServlet {
 					statement.setString(1, id);
 				}
 				statement.setString(1, id);
-				sep = ";";	 
-				res = Olyutil.getResultSetPS(statement);		 	 
-				strArr = Olyutil.resultSetArray(res, sep);			
-			}		
+				sep = ";";
+				res = Olyutil.getResultSetPS(statement);
+				strArr = Olyutil.resultSetArray(res, sep);
+			}
 		} catch (SQLException se) {
 			se.printStackTrace();
 		} finally {
@@ -135,11 +136,24 @@ public class GetdateParam extends HttpServlet {
 			
 			return (rtnStr);
 		}
+/********************************************************************************************************************************************************/
+	public static String addMonthsToDate(String origDate, int mths) {
+		String newDate = "";
+		LocalDate date = LocalDate.parse(origDate);
+		LocalDate returnvalue = date.plusMonths(mths);
+
+		// System.out.println("LocalDate after " + " adding months: " + returnvalue);
+		newDate = returnvalue.toString();
+		// System.out.println("***** LocalDate after " + " adding months: " + newDate);
+
+		return (newDate);
+	}
 /****************************************************************************************************************************************************/
 	
 	 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		 
+		HashMap<String, String> invDateMapDB = new HashMap<String, String>();
+
 		String dispatchJSP = "/nbvaprocess.jsp";
 		HttpSession session = request.getSession(true);
 		ArrayList<String> dateArr = new ArrayList<String>();
@@ -162,7 +176,7 @@ public class GetdateParam extends HttpServlet {
 		invoiceDateArr = getDbData(id.trim(), sqlFileDueDate, 2, currDate);
 		
 		
-		Olyutil.printStrArray(invoiceDateArr);
+		//Olyutil.printStrArray(invoiceDateArr);
 		if(invoiceDateArr.size() > 0) {
 			String[] splitArr = Olyutil.splitStr(invoiceDateArr.get(0), ";");
 			invDueDate = splitArr[2];
@@ -172,6 +186,8 @@ public class GetdateParam extends HttpServlet {
 		
 		
 		if(dateArr.size() > 0) {
+			
+			
 			//Olyutil.printStrArray(dateArr);
 			String[] strSplitArr = Olyutil.splitStr(dateArr.get(0), ";");
 			//System.out.println("*** ARR=" + strSplitArr[0] + "--");
@@ -182,7 +198,14 @@ public class GetdateParam extends HttpServlet {
 			
 			String date2 = DateUtil.dateShift(newEffDate, "yyyy-MM-dd", "yyyy-MM-dd", 30);
 			
-	
+			if(invoiceDateArr.size() > 0) {
+				for (String s : invoiceDateArr) {	
+					
+					String[] items = s.split(";");
+					//System.out.println("*** itemsSZ=" + items.length + "--S=" + s + "--");
+					invDateMapDB.put(items[1], items[2]);
+				}
+			}
 		 //System.out.println("**!!** ID=" + id + "--CD="  + commDate_t  +  "--NewEffDate="  + newEffDate  + "--D2=" + date2 + "--");
 			String commDate = "";
 			try {
@@ -191,6 +214,8 @@ public class GetdateParam extends HttpServlet {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			
+			String effDatePlus30 = addMonthsToDate(invDueDate, 1);
 			 //System.out.println("**!!** ID=" + id + "--CD_T="  + commDate_t  +  "--CommDate="   + commDate + "--NewEffDate="  + newEffDate  + "--D2=" + date2 + "--");
 
 			//String datePlus30 = dateShift(newEffDate, "yyyy-MM-dd","yyyy-MM-dd", 30);
@@ -205,8 +230,11 @@ public class GetdateParam extends HttpServlet {
 		
 		request.getSession().setAttribute("newEffDate", invDueDate);
 		
+		request.getSession().setAttribute("effDatePlus30", effDatePlus30);
+
+		request.getSession().setAttribute("invDueDate", invDueDate); // Latest Due date from DB
+		request.getSession().setAttribute("invDateMapDB", invDateMapDB); // all due dates with invoice as key
 		
-		request.getSession().setAttribute("invDueDate", invDueDate); //  	
 		request.getSession().setAttribute("invNumber", invNumber); //  
 
 		} else { // date not found for ID
