@@ -699,18 +699,28 @@ public class CodeExcel extends HttpServlet {
 		String aDate = "";
 		String contractID = "";
 		String aID = "";
-		 
-		
+		String desc = "";
+		String lateCharge = "";
 		for (String s : strArr) {	
 			String[] items = s.split(sep);	
 			//System.out.println("*** SZ=" + items.length + "-- " + s );
 			contractID = items[0].trim(); 
+			// Process ageFile
 			if (contractID.equals(id)) {
-				//System.out.println("*** Match: " +  s );
+				 //System.out.println("*** Match: " +  s );
 				aDate = items[5].trim();
 				aID = items[6].trim();
+				desc = items[3].trim();
+				lateCharge = items[4].trim();
 				//System.out.println("*** Match: aID=" +  aID + "-- aDate=" + aDate + "--" );
-				assetMap.put(aID, aDate);
+				if (desc.equals("LATE CHARGES")) {
+					assetMap.put(aID, aDate + "^" + desc + "^" + lateCharge );
+				} else {
+					assetMap.put(aID, aDate);
+				}
+				
+				
+				
 			}
 			 
 		 }
@@ -746,8 +756,10 @@ public class CodeExcel extends HttpServlet {
 		double buy = 0.00;
 		double invoiceTot = 0.00;
 		 String dFmt = Olyutil.formatDate(dateStamp, "yyyy-MM-dd", "MMMM d, yyyy");
-	 
-		
+		 String effDate_LC = "";
+		 String desc_LC = "";
+		 String charge_LV = "";
+		 
 		String[] lineArr = null;
 		//System.out.println("** DATE=" + dFmt + "--");
 		
@@ -793,6 +805,8 @@ public class CodeExcel extends HttpServlet {
 			
 			double buyOutAmt_noTax =  contractData.getBuyOut() ;
 			
+			double buyOutAmt_withTax =  contractData.getBuyOutWithTax() ;
+			
 			// dFmt2 = Olyutil.formatDate(effDate, "yyyy-MM-dd", "MMMM dd, yyyy");
 			String dFmt2 = Olyutil.formatDate(effDate, "yyyy-MM-dd", "M/d/yyyy");
 			
@@ -832,9 +846,9 @@ public class CodeExcel extends HttpServlet {
 			cell = row.getCell(4);
 			
 			
-			cell.setCellValue(buyOutAmt_noTax);
+			//cell.setCellValue(buyOutAmt_noTax); // without tax
 			
-			
+			cell.setCellValue(buyOutAmt_withTax); // with tax
 			
 			
 			row = sheet1.getRow(8);
@@ -880,12 +894,13 @@ public class CodeExcel extends HttpServlet {
 			int k = 19;
 			int zz = 0;
 			double amt = 0.00;
-
+			double amt_LC = 0.00;
+			
 			// Process invoice hash
 			
 			
 			
-			//displayDataMapStr(assetMap);
+			 //displayDataMapStr(assetMap);
 		  
 			
 			double invoicePayment = contractData.getPaymentWtax();
@@ -895,6 +910,8 @@ public class CodeExcel extends HttpServlet {
 			// display invoice numbers and totals
 			String key = "";
 			String val = "";
+			String[] arrOfStr = null;
+			  
 			if (! assetMap.containsValue(effDate)) {
            	 //System.out.println("**** effDate not found:" + effDate + "--");
            	 assetMap.put("TBD", effDate);
@@ -906,11 +923,16 @@ public class CodeExcel extends HttpServlet {
 	              Map.Entry mp = (Map.Entry)iterator2.next();
 	              key = mp.getKey().toString();
 	              val = mp.getValue().toString();
-	              //System.out.print("**** mapSorted:" + mp.getKey() + ": ");
+	            // System.out.print("**** mapSorted:" + mp.getKey() + ": ");
 	              //System.out.println(mp.getValue() + "--");
 	              
 	              //System.out.println("**** mapSorted=" + key + "-- Value=" + val + "--");
-
+	              
+	              
+	              
+	              
+	              
+/*
 	              row = sheet1.getRow(k);
 					cell = row.getCell(1);
 					cell.setCellValue(key);
@@ -919,18 +941,64 @@ public class CodeExcel extends HttpServlet {
 					String dFmt4 = Olyutil.formatDate(val, "yyyy-MM-dd", "M/d/yyyy");
 					cell = row.getCell(2);
 					cell.setCellValue( dFmt4);
+			*/		
+					
+	              
+				if (val.matches(".*\\bLATE CHARGES\\b.*")) {
+					//System.out.println("*** Match LC=" + val + "--");
+					arrOfStr = val.split("\\^");
+					effDate_LC = arrOfStr[0];
+					desc_LC = arrOfStr[1];
+					charge_LV = arrOfStr[2];
+					 row = sheet1.getRow(k);
+						cell = row.getCell(1);
+						cell.setCellValue(key);
+						amt_LC  += Olyutil.strToDouble(charge_LV);
+						String dFmt4 = Olyutil.formatDate(effDate_LC, "yyyy-MM-dd", "M/d/yyyy");
+						cell = row.getCell(2);
+						cell.setCellValue( dFmt4);
+					
+						//System.out.println("*** Match key=" + key + "-- Date=" + effDate_LC + "-- Charge=" + charge_LV + "--");
+					
 					
 					cell = row.getCell(3);
-					cell.setCellValue( "Usage:");
-					
-					 cell = row.getCell(4);
-					 cell.setCellValue( Olyutil.decimalfmt(invoicePayment, "$###,##0.00"));	
-					 cell.setCellValue(invoicePayment);
-					 //System.out.println("**B** IVT=" + invoiceTot + "-- IP=" + invoicePayment + "--");
-					invoiceTot += invoicePayment;
-					 //System.out.println("**A** IVT=" + invoiceTot + "-- IP=" + invoicePayment + "--");
+					cell.setCellValue(desc_LC + ":");
 
-					//System.out.println("*** Setting (4) Key:" + entry.getKey() + " --> Value:" + entry.getValue() + "-- k=" + k +"-- IT=" + invoiceTot + "--");
+					cell = row.getCell(4);
+					cell.setCellValue(Olyutil.decimalfmt(Olyutil.strToDouble(charge_LV), "$###,##0.00"));
+					 cell.setCellValue( Olyutil.strToDouble(charge_LV));
+					
+
+				} else {
+					//System.out.println("*** NO Match LC=" + val + "--");
+					
+					row = sheet1.getRow(k);
+					cell = row.getCell(1);
+					cell.setCellValue(key);
+					//String dFmt4 = Olyutil.formatDate(effDateMinus1.toString(), "yyyy-MM-dd", "M/d/yyyy");
+					//String dFmt4 = Olyutil.formatDate(assetDate, "yyyy-MM-dd", "M/d/yyyy");
+					String dFmt4 = Olyutil.formatDate(val, "yyyy-MM-dd", "M/d/yyyy");
+					cell = row.getCell(2);
+					cell.setCellValue( dFmt4);
+					
+
+					cell = row.getCell(3);
+					cell.setCellValue("Usage:");
+
+					cell = row.getCell(4);
+					cell.setCellValue(Olyutil.decimalfmt(invoicePayment, "$###,##0.00"));
+					cell.setCellValue(invoicePayment);
+					// System.out.println("**B** IVT=" + invoiceTot + "-- IP=" + invoicePayment +
+					// "--");
+					invoiceTot += invoicePayment;
+					// System.out.println("**A** IVT=" + invoiceTot + "-- IP=" + invoicePayment +
+					// "--");
+
+					// System.out.println("*** Setting (4) Key:" + entry.getKey() + " --> Value:" +
+					// entry.getValue() + "-- k=" + k +"-- IT=" + invoiceTot + "--");
+
+				}
+
 					k++;		   
 	              
 	         }
@@ -1012,7 +1080,7 @@ public class CodeExcel extends HttpServlet {
 		    
 		    
 			//double tot = Olyutil.strToDouble(buyOutAmt) + contractTotal;
-		    double tot = Olyutil.strToDouble(buyOutAmt) + invoiceTot;
+		    double tot = Olyutil.strToDouble(buyOutAmt) + invoiceTot + amt_LC;
 			//cell.setCellValue(Olyutil.decimalfmt((tot), "$###,##0.00"));
 			 //System.out.println("*** Tot=" +  tot + "--BO=" + buyOutAmt + "-- IVT=" + invoiceTot + "--");
 			
