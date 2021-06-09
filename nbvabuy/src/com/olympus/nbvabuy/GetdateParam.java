@@ -139,6 +139,8 @@ public class GetdateParam extends HttpServlet {
 /********************************************************************************************************************************************************/
 	public static String addMonthsToDate(String origDate, int mths) {
 		String newDate = "";
+		//System.out.println("*** origDate=" + origDate + "--");
+		
 		LocalDate date = LocalDate.parse(origDate);
 		LocalDate returnvalue = date.plusMonths(mths);
 
@@ -159,7 +161,7 @@ public class GetdateParam extends HttpServlet {
 		ArrayList<String> dateArr = new ArrayList<String>();
 		ArrayList<String> invoiceDateArr = new ArrayList<String>();
 		String sqlFile = "C:\\Java_Dev\\props\\sql\\NBVAbuy\\NBVA_assetBuy_getCommDate_V2.sql";
-		String sqlFileDueDate = "C:\\Java_Dev\\props\\sql\\NBVAbuy\\getInvoiceDueDate_V1.sql";
+		String sqlFileDueDate = "C:\\Java_Dev\\props\\sql\\NBVAbuy\\getInvoiceDueDate_V2.sql";
 		String invDueDate = "TBD";
 		String invNumber = "TBD";
 		Date cd = Olyutil.getCurrentDate();
@@ -172,7 +174,7 @@ public class GetdateParam extends HttpServlet {
 		
 		//System.out.println("**!!** ID=" + id + "--");
 		dateArr = getDbData(id.trim(), sqlFile, 1, "");
-		
+		//System.out.println("**!!** CurrDate=" + currDate+  "-- ID=" + id.trim() + "--");
 		invoiceDateArr = getDbData(id.trim(), sqlFileDueDate, 2, currDate);
 		
 		
@@ -214,7 +216,7 @@ public class GetdateParam extends HttpServlet {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
+			//System.out.println("**!!** invDueDate=" + invDueDate + "--");
 			String effDatePlus30 = addMonthsToDate(invDueDate, 1);
 			 //System.out.println("**!!** ID=" + id + "--CD_T="  + commDate_t  +  "--CommDate="   + commDate + "--NewEffDate="  + newEffDate  + "--D2=" + date2 + "--");
 
