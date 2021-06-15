@@ -49,7 +49,11 @@ public class GetIpData extends HttpServlet {
 
 		result = getRequestHeadersInMap(request);
 		displayDataMapStr(result, "DisplayResult");
-		
+		String ipAddress = request.getHeader("X-FORWARDED-FOR");  
+		if (ipAddress == null) {  
+		    ipAddress = request.getRemoteAddr();  
+		}
+		System.out.println("*** IP=" + ipAddress + "--");
 	}
 	/****************************************************************************************************************************************************/
 
