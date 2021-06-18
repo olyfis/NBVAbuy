@@ -372,7 +372,26 @@ public class NbvaBuyout extends HttpServlet {
 		
 		//transCntyTaxTotal = equipCost * ((transCntyTaxRate / 100));
 		
-		double totalTaxRate = Olyutil.strToDouble(strSplitArr[48]) + Olyutil.strToDouble(strSplitArr[49]) + Olyutil.strToDouble(strSplitArr[50]) + Olyutil.strToDouble(strSplitArr[51] + Olyutil.strToDouble(strSplitArr[52]));
+		//System.out.println("***^ SSA48=" + Olyutil.strToDouble(strSplitArr[48]) + "-- 49=" +  Olyutil.strToDouble(strSplitArr[49])  
+				//+ "-- 50=" + Olyutil.strToDouble(strSplitArr[50])  + "-- 51=" + Olyutil.strToDouble(strSplitArr[51]) + "-- 52=" + Olyutil.strToDouble(strSplitArr[52]) + "--" ) ;
+	 
+		//double totalTaxRate = Double.parseDouble(strSplitArr[48]) + Double.parseDouble(strSplitArr[49]) + Double.parseDouble(strSplitArr[50]) + Double.parseDouble(strSplitArr[51] + Double.parseDouble(strSplitArr[52]));
+		// 2021-06-18 fixed double point error when 0.00 occurs
+		double totalTaxRate = 0.00;
+		
+		for ( int i = 48; i<=52; i++ ) {
+			
+			double tr = Double.parseDouble(strSplitArr[i]);
+			if (tr > 0) {
+				totalTaxRate += tr;
+			}
+			
+			
+		}
+		
+		
+		 //double totalTaxRate = Double.parseDouble(strSplitArr[48]) + Double.parseDouble(strSplitArr[49]) + Double.parseDouble(strSplitArr[50]) + Double.parseDouble(strSplitArr[51]     );
+		//double totalTaxRate = Double.parseDouble(Olyutil.strToDouble(strSplitArr[48])) + Olyutil.strToDouble(strSplitArr[49]) + Olyutil.strToDouble(strSplitArr[50]) + Olyutil.strToDouble(strSplitArr[51] + Olyutil.strToDouble(strSplitArr[52]));
 		
 		contract.setTotalTaxRate(totalTaxRate);
 		double invoicePayment_t = cityTaxTotal +  stateTaxTotal    +  cntyTaxTotal   + transCntyTaxTotal  + transCityTaxTotal + equipCost ;
