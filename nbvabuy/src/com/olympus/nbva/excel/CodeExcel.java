@@ -1012,6 +1012,10 @@ public class CodeExcel extends HttpServlet {
 				
 				 for (Map.Entry<String, String> entry : tbdMap.entrySet()) {
 						//System.out.println("*** Key:" + entry.getKey() + " --> Value:" + entry.getValue() + "--");
+						// 2021-06-24 -- Fix TBD late charge
+						if (entry.getKey().equals("LATE_CHARGES") ) {
+							continue;
+						}
 						charges = entry.getValue();
 						row = sheet1.getRow(k++);
 						cell = row.getCell(1);

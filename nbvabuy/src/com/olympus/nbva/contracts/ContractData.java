@@ -58,7 +58,7 @@ package com.olympus.nbva.contracts;
 	private double stateTaxRate;  //i=50
 	private double transCntyTaxRate; //i=51
 	private double transCityTaxRate; //i=52
-	
+	private double transCntyTaxRate2;
 	private double totalTaxRate; // 
 	
 	private double buyOutWithTax; // 
@@ -77,6 +77,7 @@ package com.olympus.nbva.contracts;
 	
 	private String invoiceNum;
 	
+	private String ilTermDate; // i=23
 	/****************************************************************************************************************************************************/
 
 	
@@ -85,6 +86,38 @@ package com.olympus.nbva.contracts;
 	
 	public double getRemainRentRec() {
 		return remainRentRec;
+	}
+
+
+
+
+
+	public String getIlTermDate() {
+		return ilTermDate;
+	}
+
+
+
+
+
+	public void setIlTermDate(String ilTermDate) {
+		this.ilTermDate = ilTermDate;
+	}
+
+
+
+
+
+	public double getTransCntyTaxRate2() {
+		return transCntyTaxRate2;
+	}
+
+
+
+
+
+	public void setTransCntyTaxRate2(double transCntyTaxRate2) {
+		this.transCntyTaxRate2 = transCntyTaxRate2;
 	}
 
 

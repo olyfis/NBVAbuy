@@ -379,11 +379,6 @@ public void  buildCellsTotals( JspWriter out, ContractData contract, String form
 		out.println("<tr>");
 		out.println("<th class=\" " + style + "  \" >Term Date</th>");
 		out.println("<td class=\"a\">" + contract.getTermDate() + "</td></tr>");
-		
-		out.println("<tr>");
-		out.println("<th class=\" " + style + "  \" >Term Date (Infolease)</th>");
-		out.println("<td class=\"a\">" + contract.getIlTermDate() + "</td></tr>");
-		
 
 		out.println("<tr>");
 		out.println("<th class=\" " + style + "  \" >Latest Invoice Due Date</th>");

@@ -282,6 +282,20 @@ public class NbvaBuyout extends HttpServlet {
 		return(rnd);
 		
 	}
+	
+	/****************************************************************************************************************************************************/
+
+	public static void displayListValues(String[] list, int n) {
+		for ( int i = 0; i<=n; i++ ) {
+			System.out.println("***^ i=" + i + "-- listItem=" + list[i] + "--");
+			
+		}
+	}
+
+	
+	
+	
+	
 
 	/****************************************************************************************************************************************************/
 	public static ContractData loadContractObj(String[] strSplitArr, String effectiveDate, String invNum, String invDate) {
@@ -310,6 +324,7 @@ public class NbvaBuyout extends HttpServlet {
 		contract.setEquipRate(equipCost); 
 		
 		contract.setServiceRate(Olyutil.strToDouble(strSplitArr[7]));; 
+		contract.setIlTermDate(strSplitArr[23]);
 		contract.setContractStatus(strSplitArr[24]); 
 		contract.setInvoiceCode(strSplitArr[25]); 
 		contract.setPurOption(strSplitArr[26]); 
@@ -347,7 +362,7 @@ public class NbvaBuyout extends HttpServlet {
 		transCityTaxRate = Olyutil.strToDouble(strSplitArr[52]);
 		
 		
-		contract.setTransCntyTaxRate(transCntyTaxRate);
+		contract.setTransCntyTaxRate2(transCntyTaxRate);
 		contract.setTransCityTaxRate(transCityTaxRate);
 		
 		
@@ -445,6 +460,7 @@ public class NbvaBuyout extends HttpServlet {
 			if (i == 0) { // get Contract data
 				
 				//System.out.println("*********** i=" + i + "-- Line=" + strArr.get(i) + "--"); 
+				//displayListValues(strSplitArr, 52);
 				contract = loadContractObj(strSplitArr, effDate, invNum, invDate);
 				
 					asset = loadAssetObj(strSplitArr, codeMap);
